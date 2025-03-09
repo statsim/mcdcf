@@ -52,11 +52,19 @@
       }
       #loader {
         height: 325px;
-        /* center align */
         display: flex;
         justify-content: center;
         align-items: center;
+      }
+      #loader p {
         animation: blink 1s infinite;
+      }
+      #app {
+        display: none;
+      }
+      small {
+        font-size: 12px;
+        color: #666;
       }
     </style>
   </head>
@@ -66,11 +74,12 @@
     <div class="main">
     <div id="loader">
       <p>Loading...</p>
-      <!-- blinking text -->
-
     </div>
+
   <h1>Monte Carlo Discounted Cash Flow <span style="font-weight: 200">(MCDCF)</span></h1>
-  
+  <small>
+    Download bundled offline version from: <a href="https://github.com/statsim/mcdcf/releases">https://github.com/statsim/mcdcf/releases</a>
+  </small> 
   <h2>Overview</h2>
   <p>
     The Monte Carlo Discounted Cash Flow tool is designed for property investors who want to forecast the potential financial performance of their investments. This application helps you evaluate how various economic and property-specific factors may influence your cash flow over time. By simulating multiple scenarios, it provides an informed projection of key metrics such as cash flows and internal rate of return (IRR), empowering you to make better investment decisions.

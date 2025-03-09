@@ -76,3 +76,10 @@ import VuetifyMoney from "vuetify-money";
 app.use(VuetifyMoney);
 
 app.mount('#app')
+
+window.addEventListener('load', function () {
+  const loader = document.getElementById('loader')
+  if (loader) loader.style.display = 'none'
+  const app = document.getElementById('app')
+  if (app) app.style.display = 'block'
+});
