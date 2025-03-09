@@ -1,0 +1,8 @@
+temp
+dist
+*.swp
+bundle.js.tmp*
+node_modules
+bin
+npm-debug.log
+tmp

@@ -1,0 +1,3585 @@
+<style scoped>
+/* nav apply greyscale filter */
+/* .v-main, .v-navigation-drawer { */
+  /* background-color: #f2f4f6 !important; */
+/* } */
+body {
+  font-family: monospace;
+}
+.v-application :deep(.v-application__wrap) {
+    min-height: fit-content !important;
+}
+.v-container {
+  max-width: 1200px !important;
+}
+.v-data-table { 
+  /* overflow-x: auto; */
+  overflow-x: auto !important;
+}
+.v-expansion-panel-title {
+  font-weight: 800;
+  font-size: 24px !important;
+  /* text-decoration: underline; */
+}
+.v-list-item {
+  border:none;
+}
+.v-list-item-title {
+  font-size: 14px !important;
+}
+.v-card {
+  border-radius: 0 !important;
+}
+#logo {
+  padding: 14px 2px;
+  /* text-align: center; */
+}
+#logo span {
+  font-size: 18px !important;
+  font-weight: 800;
+  color: #000;
+  margin-right: 17px;
+  padding-bottom: 0px;
+  position: relative;
+  /* text-decoration: underline; */
+  /* border-bottom: 3px solid #000; */
+  /* add animation transition */
+  transition: all 0.4s ease-in-out;
+}
+#logo span::after {
+  content: "";
+  position: absolute;
+  left: 1px;
+  bottom: -1px; /* Adjust this value to control spacing */
+  width: 3px;
+  height: 3px;
+  background-color: #000;
+}
+#logo p {
+  font-size: 9px;
+  color: #000;
+  margin-top: 3px;
+  /* text-align: right; */
+}
+.caption {
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 10px;
+}
+.red-bg {
+  background-color: red;
+}
+</style>
+
+<template>
+  <v-app :full-height="false">
+      <v-snackbar v-model="showAlert" bottom>
+          Link copied to clipboard...
+        <template #actions>
+          <v-btn text @click="showAlert = false">Close</v-btn>
+        </template>
+      </v-snackbar>
+    <v-app-bar color="white" app v-if="$vuetify.display.mdAndDown" style="padding-left: 10px; padding-right: 10px;">
+      <!-- <v-app-bar-nav-icon variant="text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon> -->
+      <v-btn icon="$mdi-menu" @click.stop="drawer = !drawer"></v-btn>
+      
+      <v-toolbar-title></v-toolbar-title>
+      
+      <v-spacer></v-spacer>
+
+      <v-btn @click="run()" color="black" variant="flat" dark prepend-icon="$mdi-lightning-bolt" rounded="0">RUN MODEL</v-btn>
+      <!-- <v-btn icon="mdi-dots-vertical" variant="text"></v-btn> -->
+    </v-app-bar>
+    <v-navigation-drawer :width="208" v-model="drawer">
+      <v-list-item>
+        <div id="logo">
+          <span id="logo-1">M</span>
+          <span id="logo-2">C</span>
+          <span id="logo-3">D</span>
+          <span id="logo-4">C</span>
+          <span id="logo-5">F</span>
+          <!-- <p>Monte Carlo Discounted Cash Flow</p> -->
+        </div>
+      </v-list-item>
+      <!-- <v-divider></v-divider> -->
+      <v-list-item title="Model" link @click="goToPanel(0)" class="nav">
+        <!-- <template v-slot:prepend>
+          <v-icon
+            color="#1832c0"
+            size="small"
+          >mdi-cog</v-icon>
+        </template> -->
+      </v-list-item>
+      <v-list-item link title="Property" @click="goToPanel(1)" class="nav">
+        <!-- <template v-slot:prepend>
+          <v-icon
+            color="#3e86ff"
+            size="small"
+          >mdi-home</v-icon>
+        </template> -->
+      </v-list-item>
+      <v-list-item link title="Income" @click="goToPanel(2)" class="nav">
+        <!-- <template v-slot:prepend>
+          <v-icon
+            color="#aee26f"
+            size="small"
+          >mdi-arrow-top-right</v-icon>
+        </template> -->
+      </v-list-item>
+      <v-list-item link title="Expenses" @click="goToPanel(3)" class="nav">
+        <!-- <template v-slot:prepend>
+          <v-icon
+            color="#ffcc04"
+            size="small"
+          >mdi-arrow-bottom-right</v-icon>
+        </template> -->
+      </v-list-item>
+      <v-list-item link title="Taxes" @click="goToPanel(4)" class="nav">
+        <!-- <template v-slot:prepend>
+          <v-icon
+            color="#cc0121"
+            size="small"
+          >mdi-skull</v-icon>
+        </template> -->
+      </v-list-item>
+      <v-list-item link title="Results" @click="goToPanel(5)" class="nav">
+        <!-- <template v-slot:prepend>
+          <v-icon
+            color="#AAAAAA"
+            size="small"
+          >mdi-chart-line</v-icon>
+        </template> -->
+      </v-list-item>
+      <!-- <v-divider></v-divider> 
+                <v-overlay
+            activator="parent"
+            location-strategy="connected"
+            ll-strategy="block"
+            scroll-strategy="close"
+          >
+            <v-card class="pa-2" style="max-width: 300px; line-height: 1.2">
+              <p>Copied to clipboard</p>
+              <small style="color: #888; font-size: 12px">
+                This link contains your entire project data compressed directly in the URL — no server storage needed. When opened, the app automatically extracts and loads all your settings from the URL itself.
+              </small>
+            </v-card>
+          </v-overlay> 
+      -->
+      <v-list-item style="padding-top: 18px;">
+        <v-btn 
+          @click="copyLinkToClipboard" 
+          variant="outlined"
+          color="black" 
+          dark
+          prepend-icon="$mdi-link"
+          rounded="0"
+          :width="190"
+        >
+          Copy Link
+        </v-btn>
+      </v-list-item>
+      <v-list-item style="padding-top: 18px;">
+        <!-- <v-container> -->
+          <!-- <v-btn @click="run()" color="black" dark prepend-icon="mdi-play-circle">RUN MODEL</v-btn> -->
+          <!-- <v-btn @click="run()" variant="outlined" color="black" dark v-bind:prepend-icon="mdiLightningBolt" rounded="0">RUN MODEL</v-btn> -->
+          <v-btn
+            v-if="$vuetify.display.lgAndUp"
+            @click="run()"
+            variant="flat"
+            color="black"
+            dark
+            prepend-icon="$mdi-lightning-bolt"
+            rounded="0"
+            :width="190"
+          >RUN MODEL</v-btn>
+        <!-- </v-container> -->
+      </v-list-item>
+      <v-list-item>
+        <!-- <p>Interval: {{ interval }}</p> -->
+        <!-- <p>Samples: {{ samples }}</p> -->
+        <!-- <p>Months</p> -->
+      </v-list-item> 
+      <!-- <v-divider></v-divider> -->
+      <v-list-item title="Example 1" link @click="load_example(1)"></v-list-item>
+      <v-list-item title="Example 2" link @click="load_example(2)"></v-list-item>
+      <!-- <v-divider></v-divider> -->
+      <!-- <pre style="font-size:8px"> {{ project }} </pre> -->
+    </v-navigation-drawer>
+
+    <v-main>
+      <v-container>
+        <!-- <v-expansion-panels multiple variant="accordion" v-model="active_panels" elevation="0"> -->
+        <v-expansion-panels multiple variant="accordion" v-model="active_panels" elevation="0" style="border: 1px solid #e0e0e0" rounded="0">
+          <v-expansion-panel id="panel_0">
+          <!-- <v-expansion-panel id="panel_0" style="border-left: 3px solid #1832c0"> -->
+            <v-expansion-panel-title>
+              Model
+            </v-expansion-panel-title>
+            <v-expansion-panel-text>
+              <!-- Three blocks for economic Growth, inflation, discount rate-->
+                <v-row>
+                  <v-col cols="12" md="3">
+                    <v-select
+                      v-model="project.model.interval"
+                      :items="intervals_global"
+                      label="Global step size (interval)"
+                    ></v-select>
+                    <p class="caption">
+                        Defines how large each simulation step is. For example, if the step size is <b>Month</b>, each simulation step will be one month long. Possible values are Month, Quarter, Year.
+                    </p>
+                  </v-col>
+                  <v-col cols="12" md="3">
+                    <v-text-field :label="`Number of steps (${project.model.interval.toLowerCase()}s)`" v-model.number="project.model.steps" type="number" min="1"></v-text-field>
+                    <p class="caption">
+                        The number of steps is the number of times the model is run. For example, if the number of steps is set to 12 and the interval is <b>Month</b>, the model will be run for 12 months.
+                    </p>
+                  </v-col>
+                  <v-col cols="12" md="3">
+                    <v-text-field label="Number of samples" v-model.number="project.model.samples" type="number" min="1"></v-text-field>
+                    <p class="caption">
+                        The number of samples is the number of times the simulation is run. This is used to calculate the distribution of the results in Monte Carlo simulations.
+                    </p>
+                  </v-col>
+                  <v-col cols="12" md="3">
+                    <v-text-field label="Precision" v-model.number="project.model.precision" type="number"></v-text-field>
+                    <p class="caption">
+                      The precision is the number of decimal places used in the simulation. Increasing the precision will increase the accuracy of the results.
+                    </p>
+                  </v-col>
+                </v-row>
+                <v-row>
+                  <!--  -->
+                  <v-col cols="12" md="6">
+                    <v-card>
+                      <template v-slot:title>
+                        Inflation
+                      </template>
+                      <template v-slot:subtitle>
+                        Rate of inflation
+                      </template>
+                      <!-- right top icon -->
+                      <template v-slot:append>
+                        <v-switch v-model="project.model.inflation.active" label="" hide-details></v-switch>
+                      </template>
+                      <template v-slot:text v-if="project.model.inflation.active">
+                        <v-select
+                          v-model="project.model.inflation.type"
+                          :items="['Fixed', 'Random Walk', 'Tabular']"
+                          label="Inflation type"
+                        ></v-select>
+                        <div v-if="project.model.inflation.type === 'Fixed'">
+                          <v-text-field
+                            label="Fixed inflation"
+                            v-model.number="project.model.inflation.initial"
+                            suffix="%"
+                          ></v-text-field>
+                          <v-select
+                            v-model="project.model.inflation.interval"
+                            :items="intervals_global"
+                            label="Interval"
+                          ></v-select>
+                        </div>
+                        <div v-else-if="project.model.inflation.type === 'Random Walk'">
+                          <v-text-field
+                            label="Initial"
+                            v-model.number="project.model.inflation.initial"
+                            suffix="%"
+                          ></v-text-field>
+                          <v-row>
+                            <v-col cols="12" sm="4">
+                              <v-text-field
+                                label="Mean"
+                                v-model.number="project.model.inflation.mean"
+                              ></v-text-field>
+                            </v-col>
+                            <v-col cols="12" sm="4">
+                              <v-text-field
+                                label="Std"
+                                v-model.number="project.model.inflation.std"
+                              ></v-text-field>
+                            </v-col>
+                            <v-col cols="12" sm="4">
+                              <v-text-field
+                                label="Df"
+                                v-model.number="project.model.inflation.df"
+                              ></v-text-field>
+                            </v-col>
+                          </v-row>
+                          <v-select
+                            v-model="project.model.inflation.interval"
+                            :items="intervals_global"
+                            label="Interval"
+                          ></v-select>
+                        </div>
+                        <div v-else-if="project.model.inflation.type === 'Tabular'">
+                          <v-row
+                            v-for="(step, index) in parseInt(project.model.steps) - 1"
+                            :key="index"
+                            style="margin-top: 0"
+                          >
+                            <v-col cols="12" style="margin-top: 0; padding-top: 0; margin-bottom: 0; padding-bottom: 0">
+                              <v-text-field
+                                :label="'Growth (' + project.model.interval + ': ' + (index + 1) + ' → ' + (index + 2) + ')'"
+                                v-model.number="project.model.inflation.growth_values[index]"
+                                suffix="%"
+                                type="number"
+                              >
+                                <template v-slot:append>
+                                  <v-btn
+                                    icon="$mdi-arrow-down-right"
+                                    size="x-small"
+                                    variant="text"
+                                    @click="fill_growth_tabular(
+                                      project.model.inflation.growth_values[index],
+                                      project.model.inflation.growth_values, 
+                                      index
+                                    )"
+                                  ></v-btn>
+                                </template>
+                              </v-text-field>
+                            </v-col>
+                          </v-row>
+                        </div>
+                        <p class="caption"> 
+                          Inflation can be used as a common growth factor for income and expenses values. Interval can be smaller than the global interval. In this case values will be aggregated.
+                        </p>
+                        <p v-for="i in project.income.items">Used in: <b>{{i.description}} </b> (↗ Income)</p>
+                        <p v-for="i in project.expenses.items">Used in: <b>{{i.description}} </b> (↘ Expenses)</p>
+                            <!-- v-if="i.amount_growth.type === 'Inflation'" -->
+                          <!-- <li v-for="i in project.expenses.items" v-if="i.amount_growth.type === 'Inflation'">Used in: {{ i.description }}</li> -->
+                        <!-- 
+                        <v-text-field label="Initial value" v-model="project.model.inflation.initial" suffix="%"></v-text-field>
+                        <v-text-field label="Increment (mean)" v-model="project.model.inflation.mean"  suffix="%"></v-text-field>
+                        <v-text-field label="Increment (std)" v-model="project.model.inflation.std"></v-text-field>
+                        <v-text-field label="Increment (degrees of freedom)" v-model="project.model.inflation.df"></v-text-field>
+                        <v-select
+                          label="Interval"
+                          v-model="project.model.inflation.interval"
+                          :items="intervals_global"
+                          ></v-select>
+                          <p class="caption" v-if="!intervals.includes(project.model.inflation.interval)" style="color: red">
+                            The inflation update interval must be the same or larger than the global interval: <b>{{ project.model.interval }}</b>
+                          </p>
+                        -->
+                        <!-- :bg-color="intervals.includes(project.model.inflation.interval)  ? null : 'red'" -->
+                      </template>
+                    </v-card>
+                  </v-col>
+                  <!--  -->
+                  <v-col cols="12" md="6">
+                    <v-card>
+                      <template v-slot:title>
+                        Economic Growth
+                      </template>
+                      <template v-slot:subtitle>
+                        Growth rate of the economy
+                      </template>
+                      <template v-slot:append>
+                        <v-switch v-model="project.model.economic_growth.active" label="" hide-details></v-switch>
+                      </template>
+                      <template v-slot:text v-if="project.model.economic_growth.active">
+                        <!-- Type selection -->
+                        <v-select
+                          v-model="project.model.economic_growth.type"
+                          :items="['Fixed', 'Random Walk', 'Tabular']"
+                          label="Growth type"
+                        ></v-select>
+                        <!-- Fixed growth -->
+                        <div v-if="project.model.economic_growth.type === 'Fixed'">
+                          <v-text-field
+                            label="Fixed growth"
+                            v-model="project.model.economic_growth.initial"
+                            suffix="%"
+                          ></v-text-field>
+                          <v-select
+                            v-model="project.model.economic_growth.interval"
+                            :items="intervals_global"
+                            label="Interval"
+                          ></v-select>
+                        </div>
+
+                        <!-- Random Walk growth -->
+                        <div v-else-if="project.model.economic_growth.type === 'Random Walk'">
+                          <v-text-field
+                            label="Initial"
+                            v-model="project.model.economic_growth.initial"
+                            suffix="%"
+                          ></v-text-field>
+                          <v-row>
+                            <v-col cols="12" sm="4">
+                              <v-text-field
+                                label="Mean"
+                                v-model="project.model.economic_growth.mean"
+                              ></v-text-field>
+                            </v-col>
+                            <v-col cols="12" sm="4">
+                              <v-text-field
+                                label="Std"
+                                v-model="project.model.economic_growth.std"
+                              ></v-text-field>
+                            </v-col>
+                            <v-col cols="12" sm="4">
+                              <v-text-field
+                                label="Df"
+                                v-model="project.model.economic_growth.df"
+                              ></v-text-field>
+                            </v-col>
+                          </v-row>
+                          <v-select
+                            v-model="project.model.economic_growth.interval"
+                            :items="intervals_global"
+                            label="Interval"
+                          ></v-select>
+                        </div>
+
+                        <!-- Tabular growth -->
+                        <div v-else-if="project.model.economic_growth.type === 'Tabular'">
+                          <v-row
+                            v-for="(step, index) in parseInt(project.model.steps) - 1"
+                            :key="index"
+                            style="margin-top: 0"
+                          >
+                            <v-col cols="12" style="margin-top: 0; padding-top: 0; margin-bottom: 0; padding-bottom: 0">
+                              <v-text-field
+                                :label="'Growth (' + project.model.interval + ': ' + (index + 1) + ' → ' + (index + 2) + ')'"
+                                v-model="project.model.economic_growth.growth_values[index]"
+                                suffix="%"
+                                type="number"
+                              >
+                                <template v-slot:append>
+                                  <v-btn
+                                    icon="$mdi-arrow-down-right"
+                                    size="x-small"
+                                    variant="text"
+                                    @click="fill_growth_tabular(
+                                      project.model.economic_growth.growth_values[index],
+                                      project.model.economic_growth.growth_values, 
+                                      index
+                                    )"
+                                  ></v-btn>
+                                </template>
+                              </v-text-field>
+                            </v-col>
+                          </v-row>
+                        </div>
+                        <p class="caption">
+                          The economic growth can be used as a common growth factor for occupancy rate of multiple income items. Interval can be smaller than the global interval. In this case values will be aggregated.
+                        </p>
+                      </template>
+                    </v-card>
+                  </v-col>
+                  <!--  -->
+                  <!--  -->
+                  
+                  <!-- 
+                  <v-col cols="12" md="4">
+                    <v-card>
+                      <template v-slot:title>
+                        Discount Rate
+                      </template>
+                      <template v-slot:subtitle>
+                        Rate of discounting future cash flows
+                      </template>
+                      <template v-slot:text>
+                        <v-text-field label="Initial value" v-model="project.model.discount_rate.initial" suffix="%" ></v-text-field>
+                        <v-text-field label="Increment (mean)" v-model="project.model.discount_rate.mean" suffix="%" ></v-text-field>
+                        <v-text-field label="Increment (std)" v-model="project.model.discount_rate.std"></v-text-field>
+                        <v-text-field label="Increment (degrees of freedom)" v-model="project.model.discount_rate.df"></v-text-field>
+                        <v-select
+                          label="Interval"
+                          v-model="project.model.discount_rate.interval"
+                          :items="intervals_global"
+                          ></v-select>
+                        <p class="caption" v-if="!intervals.includes(project.model.discount_rate.interval)" style="color: red">
+                          The discount rate update interval must be the same or larger than the global interval: <b>{{ project.model.interval }}</b>
+                        </p>
+                      </template>
+                    </v-card>
+                  </v-col>
+                  -->
+                </v-row>
+            </v-expansion-panel-text>
+          </v-expansion-panel>
+
+          <!-- Section 0: Property -->
+          <!-- <v-expansion-panel id="panel_1" style="border-left: 3px solid #3e86ff"> -->
+          <v-expansion-panel id="panel_1">
+            <v-expansion-panel-title>
+              Property
+            </v-expansion-panel-title>
+            <v-expansion-panel-text>
+                <v-row>
+                  <v-col cols="12" md="8">
+                    <v-text-field label="Project Name" v-model="project.property.name"></v-text-field>
+                  </v-col>
+                  <v-col cols="12" md="4">
+                    <v-text-field label="Holding period, years" v-model="project.property.holdingPeriod" type="number" min="1"></v-text-field>
+                  </v-col>
+                </v-row>
+                <v-row>
+                  <v-col cols="12" md="4">
+                    <v-card>
+                      <template v-slot:title>
+                        Debt
+                      </template>
+                      <template v-slot:text>
+                        <v-text-field label="Purchase price" v-model="project.property.debt.amount" suffix="$" type="number" min="0"></v-text-field>
+                        <v-row>
+                          <v-col cols="12" sm="6"><v-text-field label="Term, years" v-model="project.property.debt.term"></v-text-field></v-col>
+                          <v-col cols="12" sm="6"><v-text-field label="Annual interest rate, %" v-model="project.property.debt.rate"></v-text-field></v-col>
+                        </v-row>
+                        <v-select
+                          v-model="project.property.debt.interval"
+                          :items="['Month', 'Year']"
+                          label="Interval (amortization)"
+                        ></v-select>
+                      </template>
+                    </v-card>
+                  </v-col>
+                  <v-col cols="12" md="4">
+                    <v-card>
+                      <template v-slot:title>
+                        Purchase
+                      </template>
+                      <template v-slot:text>
+                        <v-text-field label="Purchase price" v-model="project.property.purchase.price" suffix="$" type="number" min="0"></v-text-field>
+                        <v-text-field label="Purchase costs" v-model="project.property.purchase.costs" suffix="$" type="number" min="0"></v-text-field>
+                      </template>
+                    </v-card>
+                  </v-col>
+                  <v-col cols="12" md="4">
+                    <v-card>
+                      <template v-slot:title>
+                        Sale
+                      </template>
+                      <template v-slot:text>
+                        <v-text-field label="Sale price" v-model="project.property.sale.price" suffix="$" type="number" min="0"></v-text-field>
+                        <v-text-field label="Sale costs" v-model="project.property.sale.costs" suffix="$" type="number" min="0"></v-text-field>
+                      </template>
+                    </v-card>
+                  </v-col>
+                </v-row>
+            </v-expansion-panel-text>
+          </v-expansion-panel>
+
+          <!-- Section 1: Incomes -->
+          <v-expansion-panel id="panel_2">
+          <!-- <v-expansion-panel id="panel_2" style="border-left: 3px solid #aee26f"> -->
+            <v-expansion-panel-title>
+              Income <span style="font-weight: 200; padding-left: 10px; font-size: 20px"> ({{ project.income.items.length }})</span>
+            </v-expansion-panel-title>
+            <v-expansion-panel-text>
+              <!-- density="dense" -->
+              <v-data-table
+                density="default"
+                :headers="incomeHeaders"
+                :items="project.income.items"
+                v-model:expanded="incomeExpanded"
+                item-value="id"
+                class="elevation-1"
+                :mobile-breakpoint="0"
+                :mobile="mobile"
+                show-expand
+                expand-icon="$mdi-chevron-down"
+                expand-icon-expanded="$mdi-chevron-up"
+                :row-props="obj => {
+                  return {
+                    style: !obj.item.active ? 'background: #EEE; opacity: 0.5;' : ''
+                  }
+                }"
+              >
+<!--  
+              <template #item.data-table-expand="{ toggleExpand, isExpanded, item }">
+                <v-btn
+                  variant="text"
+                  :icon="incomeExpanded.includes(item.id) ? '$mdi-chevron-up' : '$mdi-chevron-down'" 
+                  @click="() => {
+                  if (!this.incomeExpanded.includes(item.id)) this.incomeExpanded.push(item.id);
+                  else this.incomeExpanded = this.incomeExpanded.filter((id) => id !== item.id);
+                }"></v-btn>
+              </template>
+              -->
+              <template #item.data-table-expand="{ toggleExpand, isExpanded, item, internalItem }">
+                <v-btn
+                  size="small"
+                  variant="text"
+                  :icon="isExpanded(internalItem) ? '$mdi-chevron-up' : '$mdi-chevron-down'" 
+                  @click="toggleExpand(internalItem)">
+                </v-btn>
+              </template>
+              <!-- 
+                <template v-slot:item.actions="{ item }">
+                  <v-btn
+        size="small"
+        variant="text"
+        icon="$mdi-chevron-up" 
+        @click="toggleExpand(internalItem)">
+      </v-btn>
+    </template>
+    -->
+              <template v-slot:expanded-row="{ columns, item }">
+                <tr>
+                  <td :colspan="columns.length">
+                    <!-- Growth rate for {{ item.description }}. -->
+                    <!-- Three blocks in three columns with amount, occupancy, growth-->
+                    <v-container>
+
+                      <v-row>
+                        <!-- 
+                        <v-col cols="4">
+                          <v-card>
+                            <template v-slot:title>
+                              Amount
+                            </template>
+                            <template v-slot:subtitle>
+                              How amount is calculated
+                            </template>
+                            <template v-slot:text>
+                              <v-select
+                                v-model="item.type"
+                                :items="['Absolute', 'Relative']"
+                                label="Amount type"
+                              ></v-select>
+                              <div v-if="item.type === 'Absolute'">
+                                <v-text-field label="Value" v-model="item.amount" suffix="$"></v-text-field>
+                                <v-row>
+                                  <v-col cols="12" sm="6"><v-text-field label="Min" v-model="item.min"></v-text-field></v-col>
+                                  <v-col cols="12" sm="6"><v-text-field label="Max" v-model="item.max"></v-text-field></v-col>
+                                </v-row>
+                                <v-select
+                                  v-model="item.interval"
+                                  :items="intervals"
+                                  label="Update frequency"
+                                ></v-select>
+                              </div>
+                              <div v-else>
+                                <v-text-field label="Factor" v-model="item.interval"></v-text-field>
+                              </div>
+                            </template>
+                          </v-card>
+                        </v-col>
+                         -->
+                        <v-col cols="6">
+                          <v-card>
+                            <template v-slot:title>
+                              Amount growth
+                            </template>
+                            <template v-slot:subtitle>
+                              How amount changes over time
+                            </template>
+                            <template v-slot:text>
+                              <v-select
+                                v-model="item.amount_growth.type"
+                                :items="['Fixed', 'Random Walk', 'Tabular', 'Inflation']"
+                                label="Growth type"
+                              ></v-select>
+                              <div v-if="item.amount_growth.type === 'Fixed'">
+                                <v-text-field label="Fixed growth" v-model="item.amount_growth.initial" suffix="%"></v-text-field>
+                                <v-select
+                                  v-model="item.amount_growth.interval"
+                                  :items="intervals_global"
+                                  label="Update frequency"
+                                ></v-select>
+                              </div>
+                              <div v-else-if="item.amount_growth.type === 'Random Walk'">
+                                <v-text-field label="Initial" v-model="item.amount_growth.initial" suffix="%"></v-text-field>
+                                <v-row>
+                                  <v-col cols="12" sm="4"><v-text-field label="Mean" v-model="item.amount_growth.mean"></v-text-field></v-col>
+                                  <v-col cols="12" sm="4"><v-text-field label="Std" v-model="item.amount_growth.std"></v-text-field></v-col>
+                                  <v-col cols="12" sm="4"><v-text-field label="Df" v-model="item.amount_growth.df"></v-text-field></v-col>
+                                </v-row>
+                                <v-select
+                                  v-model="item.amount_growth.interval"
+                                  :items="intervals_global"
+                                  label="Update frequency"
+                                ></v-select>
+                              </div>
+                              <div v-else-if="item.amount_growth.type === 'Tabular'">
+                                <!-- Create array of project.model.steps size -->
+                                <v-row v-for="(step, index) in parseInt(project.model.steps)" :key="index" style="margin-top: 0">
+                                  <v-col cols="12" sm="6" style="margin-top: 0; padding-top: 0; margin-bottom: 0; padding-bottom: 0">
+                                    <v-text-field 
+                                      :label="'Growth (' + project.model.interval + ': ' + (index + 1) + ')'" 
+                                      v-if="index > 0"
+                                      v-model="item.amount_growth.growth_values[index]" 
+                                      v-on:update:model-value="update_growth_tabular(item.amount, item.amount_growth.target_values, item.amount_growth.growth_values, 0)"
+                                      suffix="%"
+                                      type="number"
+                                    >
+                                      <template v-slot:append>
+                                        <v-btn 
+                                          icon="$mdi-arrow-down-right"
+                                          size="x-small"
+                                          variant="text"
+                                          @click="
+                                            fill_growth_tabular(item.amount_growth.growth_values[index], item.amount_growth.growth_values, index); 
+                                            update_growth_tabular(item.amount, item.amount_growth.target_values, item.amount_growth.growth_values, 0)
+                                          "
+                                        ></v-btn>
+                                      </template>
+                                    </v-text-field>
+                                    <!-- :disabled="true" -->
+                                    <v-text-field 
+                                      :label="'Growth (' + project.model.interval + ': ' + (index + 1) + ')'" 
+                                      v-else
+                                      v-model="zero"
+                                      suffix="%"
+                                      type="number"
+                                      min="0"
+                                      max="0"
+                                    >
+                                      <template v-slot:append>
+                                        <v-btn 
+                                          icon="$mdi-arrow-down-right"
+                                          size="x-small"
+                                          variant="text"
+                                          @click="
+                                            fill_growth_tabular(0, item.amount_growth.growth_values, 0); 
+                                            update_growth_tabular(item.amount, item.amount_growth.target_values, item.amount_growth.growth_values, 0)
+                                          "
+                                        ></v-btn>
+                                      </template>
+                                    </v-text-field>
+                                  </v-col>
+                                  <v-col cols="12" sm="6" style="margin-top: 0; padding-top: 0; margin-bottom: 0; padding-bottom: 0">
+                                    <!-- On update trigger target_values updatte -->
+                                    <v-text-field 
+                                      :label="'Amount (' + project.model.interval + ': ' + (index + 1) + ')'" 
+                                      v-if="index > 0"
+                                      v-model="item.amount_growth.target_values[index]" suffix="$"
+                                      v-on:update:model-value="update_growth_tabular(item.amount, item.amount_growth.target_values, item.amount_growth.growth_values, 1)"
+                                      type="number"
+                                      min="0"
+                                    >
+                                      <template v-slot:append>
+                                        <v-btn 
+                                          icon="$mdi-arrow-down-right"
+                                          size="x-small"
+                                          variant="text"
+                                          
+                                          @click="
+                                            fill_growth_tabular(item.amount_growth.target_values[index], item.amount_growth.target_values, index); 
+                                            update_growth_tabular(item.amount, item.amount_growth.target_values, item.amount_growth.growth_values, 1)
+                                          "
+                                        ></v-btn>
+                                      </template>
+                                    </v-text-field>
+                                    <v-text-field 
+                                      :label="'Amount (' + project.model.interval + ': ' + (index + 1) + ')'" 
+                                      v-else
+                                      suffix="$"
+                                      v-model="item.amount"
+                                      type="number"
+                                      min="0"
+                                    >
+                                      <template v-slot:append>
+                                        <v-btn 
+                                          icon="$mdi-arrow-down-right"
+                                          size="x-small"
+                                          variant="text"
+                                          @click="
+                                            fill_growth_tabular(item.amount, item.amount_growth.target_values, 0); 
+                                            update_growth_tabular(item.amount, item.amount_growth.target_values, item.amount_growth.growth_values, 1)
+                                          "
+                                        ></v-btn>
+                                      </template>
+                                    </v-text-field>
+                                  </v-col>
+                                </v-row>
+                              </div>
+                              <div v-else>
+                                <v-text-field label="Factor" v-model="item.amount_growth.factor"></v-text-field>
+                              </div>
+                            </template>
+                          </v-card>
+                        </v-col>
+                        <v-col cols="6">
+                          <v-card>
+                            <template v-slot:title>
+                              Occupancy growth
+                            </template>
+                            <template v-slot:subtitle>
+                              How many units are occupied
+                            </template>
+                            <template v-slot:text>
+                              <v-select
+                                v-model="item.occupancy_growth.type"
+                                :items="['Fixed', 'Random Walk', 'Tabular', 'Economic Growth']"
+                                label="Growth type"
+                              ></v-select>
+                              <div v-if="item.occupancy_growth.type === 'Fixed'">
+                                <v-text-field label="Fixed growth" v-model="item.occupancy_growth.initial" suffix="%"></v-text-field>
+                                <v-select
+                                  v-model="item.occupancy_growth.interval"
+                                  :items="intervals_global"
+                                  label="Update frequency"
+                                ></v-select>
+                              </div>
+                              <div v-else-if="item.occupancy_growth.type === 'Random Walk'">
+                                <v-text-field label="Initial" v-model="item.occupancy_growth.initial" suffix="%"></v-text-field>
+                                <v-row>
+                                  <v-col cols="12" sm="4"><v-text-field label="Mean" v-model="item.occupancy_growth.mean"></v-text-field></v-col>
+                                  <v-col cols="12" sm="4"><v-text-field label="Std" v-model="item.occupancy_growth.std"></v-text-field></v-col>
+                                  <v-col cols="12" sm="4"><v-text-field label="Df" v-model="item.occupancy_growth.df"></v-text-field></v-col>
+                                </v-row>
+                                <v-select
+                                  v-model="item.occupancy_growth.interval"
+                                  :items="intervals_global"
+                                  label="Update frequency"
+                                ></v-select>
+                              </div>
+                              <div v-else-if="item.occupancy_growth.type === 'Tabular'">
+                                <!-- Create array of project.model.steps size -->
+                                <v-row v-for="(step, index) in parseInt(project.model.steps)" :key="index" style="margin-top: 0">
+                                  <v-col cols="12" sm="6" style="margin-top: 0; padding-top: 0; margin-bottom: 0; padding-bottom: 0">
+                                    <v-text-field 
+                                      :label="'Growth (' + project.model.interval + ': ' + (index + 1) + ')'" 
+                                      v-if="index > 0"
+                                      v-model="item.occupancy_growth.growth_values[index]" 
+                                      v-on:update:model-value="update_growth_tabular(item.occupancy, item.occupancy_growth.target_values, item.occupancy_growth.growth_values, 0)"
+                                      suffix="%"
+                                      type="number"
+                                    >
+                                      <template v-slot:append>
+                                        <v-btn 
+                                          icon="$mdi-arrow-down-right"
+                                          size="x-small"
+                                          variant="text"
+                                          @click="
+                                            fill_growth_tabular(item.occupancy_growth.growth_values[index], item.occupancy_growth.growth_values, index); 
+                                            update_growth_tabular(item.occupancy, item.occupancy_growth.target_values, item.occupancy_growth.growth_values, 0)
+                                          "
+                                        ></v-btn>
+                                      </template>
+                                    </v-text-field>
+                                    <!-- :disabled="true" -->
+                                    <v-text-field 
+                                      :label="'Growth (' + project.model.interval + ': ' + (index + 1) + ')'" 
+                                      v-else
+                                      v-model="zero"
+                                      suffix="%"
+                                      type="number"
+                                      min="0"
+                                      max="0"
+                                    >
+                                      <template v-slot:append>
+                                        <v-btn 
+                                          icon="$mdi-arrow-down-right"
+                                          size="x-small"
+                                          variant="text"
+                                          @click="
+                                            fill_growth_tabular(0, item.occupancy_growth.growth_values, 0); 
+                                            update_growth_tabular(item.occupancy, item.occupancy_growth.target_values, item.occupancy_growth.growth_values, 0)
+                                          "
+                                        ></v-btn>
+                                      </template>
+                                    </v-text-field>
+                                  </v-col>
+                                  <v-col cols="12" sm="6" style ="margin-top: 0; padding-top: 0; margin-bottom: 0; padding-bottom: 0">
+                                    <!-- On update trigger target_values updatte -->
+                                    <v-text-field 
+                                      :label="'Occupancy (' + project.model.interval + ': ' + (index + 1) + ')'" 
+                                      v-if="index > 0"
+                                      v-model="item.occupancy_growth.target_values[index]" suffix="%"
+                                      v-on:update:model-value="update_growth_tabular(item.occupancy, item.occupancy_growth.target_values, item.occupancy_growth.growth_values, 1)"
+                                      type="number"
+                                      min="0"
+                                    >
+                                      <template v-slot:append>
+                                        <v-btn 
+                                          icon="$mdi-arrow-down-right"
+                                          size="x-small"
+                                          variant="text"
+                                          
+                                          @click="
+                                            fill_growth_tabular(item.occupancy_growth.target_values[index], item.occupancy_growth.target_values, index); 
+                                            update_growth_tabular(item.occupancy, item.occupancy_growth.target_values, item.occupancy_growth.growth_values, 1)
+                                          "
+                                        ></v-btn>
+                                      </template>
+                                    </v-text-field>
+                                    <v-text-field 
+                                      :label="'Occupancy (' + project.model.interval + ': ' + (index + 1) + ')'" 
+                                      v-else
+                                      suffix="%"
+                                      v-model="item.occupancy"
+                                      type="number"
+                                      min="0"
+                                    >
+                                      <template v-slot:append>
+                                        <v-btn 
+                                          icon="$mdi-arrow-down-right"
+                                          size="x-small"
+                                          variant="text"
+                                          @click="
+                                            fill_growth_tabular(item.occupancy, item.occupancy_growth.target_values, 0); 
+                                            update_growth_tabular(item.occupancy, item.occupancy_growth.target_values, item.occupancy_growth.growth_values, 1)
+                                          "
+                                        ></v-btn>
+                                      </template>
+                                    </v-text-field>
+                                  </v-col>
+                                </v-row>
+                              </div>
+                              <div v-else>
+                                <v-text-field label="Factor" v-model="item.occupancy_growth.factor"></v-text-field>
+                              </div>
+                            </template>
+                          </v-card>
+                        </v-col>
+                      </v-row>
+                      <v-row>
+                        <v-col cols="12">
+                            <v-btn variant="flat" size="small" prepend-icon="$mdi-delete" @click="removeRow('income', item.id)">Delete</v-btn>
+                            <v-btn variant="flat" size="small" prepend-icon="$mdi-content-copy" @click="cloneRow('income', item.id)">Clone</v-btn>
+                        </v-col>
+                      </v-row>
+                    </v-container>
+                  </td>
+                </tr>
+              </template>
+
+                <template #footer.prepend>
+            <!-- Any custom content, e.g. a button or text -->
+                  <div style="display: flex; align-items: center; justify-content: flex-start; flex-grow: 1; margin-left: 10px">
+                    <v-btn 
+                      prepend-icon="$mdi-plus" 
+                      color="black"
+                      variant="outlined"
+                      @click="addRow('income')"
+                      style="margin-right: 10px"
+                      rounded="0"
+                    >Add Row</v-btn>
+                    <v-btn 
+                      :icon="mobile ? '$mdi-view-list' : '$mdi-view-module'"
+                      color="black"
+                      variant="outlined"
+                      density="comfortable"
+                      @click="toggleView('income')"
+                      style="margin-right: 10px"
+                    ></v-btn>
+                  </div>
+          </template>
+
+                <!-- Inline Text Field for Name -->
+                <template #item.description="{ item }">
+                  <VInlineTextarea
+                    v-model="item.description"
+                    name="description"
+                    field-only
+                    hide-details 
+                    :icons="false"
+                    hide-save-icon
+                    hide-cancel-icon
+                    :clearable="false"
+                  />
+                </template>
+
+                <!-- Inline Numeric Field for Age -->
+                <template #item.amount="{ item }">
+                    <VInlineTextField
+                    v-model="item.amount"
+                    name="amount"
+                    type="number"
+                    min="0"
+                    field-only
+                    hide-details
+                    :icons="false"
+                    hide-save-icon
+                    hide-cancel-icon
+                    :clearable="false"
+                    />
+                </template>
+
+                <template #item.units="{ item }">
+                    <VInlineTextField
+                    v-model="item.units"
+                    name="units"
+                    type="number"
+                    min="1"
+                    field-only
+                    hide-details
+                    :icons="false"
+                    hide-save-icon
+                    hide-cancel-icon
+                    :clearable="false"
+                    />
+                </template>
+
+                <template #item.occupancy="{ item }">
+                    <VInlineTextField
+                    v-model="item.occupancy"
+                    name="occupancy"
+                    type="number"
+                    min="0"
+                    max="100"
+                    field-only
+                    hide-details
+                    :icons="false"
+                    hide-save-icon
+                    hide-cancel-icon
+                    :clearable="false"
+                    />
+                </template>
+
+                <!-- 
+                <template #item.units="{ item }">
+                  <VInlineSelect
+                    v-model="item.units"
+                    :items="incomeAmountUnits"
+                    item-title="name"
+                    item-value="code"
+                    name="units"
+                    field-only
+                    hide-details
+                    :icons="false"
+                    hide-save-icon
+                    hide-cancel-icon
+                    :clearable="false"
+                  />
+                </template>
+                 -->
+
+                <template #item.interval="{ item }">
+                  <VInlineSelect
+                    v-model="item.interval"
+                    :items="intervals_global"
+                    item-title="name"
+                    item-value="code"
+                    name="interval"
+                    field-only
+                    hide-details
+                    :icons="false"
+                    hide-save-icon
+                    hide-cancel-icon
+                    :clearable="false"
+                  />
+                </template>
+
+                <template #item.growth="{ item }">
+                  <VInlineSwitch
+                    v-model="item.growth"
+                    name="growth"
+                    field-only
+                    hide-details
+                    :icons="false"
+                    hide-save-icon
+                    hide-cancel-icon
+                    :clearable="false"
+                  />
+                </template>
+              
+                <!-- Inline Switch Field for Active Status -->
+                <template #item.active="{ item }">
+                  <v-switch v-model="item.active" label="" hide-details></v-switch>
+<!-- 
+                  <VInlineSwitch
+                    v-model="item.active"
+                    name="active"
+                    field-only
+                    hide-details
+                    :icons="false"
+                    hide-save-icon
+                    hide-cancel-icon
+                    :clearable="false"
+                    color="black"
+                
+                  />
+                   -->
+                </template>
+
+                <!-- Inline Textarea for Comments -->
+                <template #item.comments="{ item }">
+                  <VInlineTextarea
+                    v-model="item.comments"
+                    name="comments"
+                    field-only
+                    hide-details 
+                    :icons="false"
+                    hide-save-icon
+                    hide-cancel-icon
+                    :clearable="false"
+                  />
+                </template>
+              </v-data-table>
+            </v-expansion-panel-text>
+          </v-expansion-panel>
+
+          <!-- Section 2: Expenses -->
+          <!-- <v-expansion-panel id="panel_3" style="border-left: 3px solid #ffcc04"> -->
+          <v-expansion-panel id="panel_3">
+            <v-expansion-panel-title>
+              Expenses <span style="font-weight: 200; padding-left: 10px; font-size: 20px"> ({{ project.expenses.items.length }})</span>
+            </v-expansion-panel-title>
+            <v-expansion-panel-text>
+              <v-data-table
+                density="default"
+                :headers="expensesHeaders"
+                :items="project.expenses.items"
+                v-model:expanded="expensesExpanded"
+                item-value="id"
+                class="elevation-1"
+                :mobile-breakpoint="0"
+                :mobile="mobile"
+                show-expand
+                :row-props="obj => {
+                  return {
+                    style: !obj.item.active ? 'background: #EEE; opacity: 0.5;' : ''
+                  }
+                }"
+              >
+              <template #item.data-table-expand="{ toggleExpand, isExpanded, item, internalItem }">
+                <v-btn
+                  size="small"
+                  variant="text"
+                  :icon="isExpanded(internalItem) ? '$mdi-chevron-up' : '$mdi-chevron-down'" 
+                  @click="toggleExpand(internalItem)">
+                </v-btn>
+              </template>
+
+              <template v-slot:expanded-row="{ columns, item }">
+                <tr>
+                  <td :colspan="columns.length">
+                    <!-- Growth rate for {{ item.description }}. -->
+                    <!-- Three blocks in three columns with amount, occupancy, growth-->
+                    <v-container>
+                      <v-row>
+                        <!-- 
+                        <v-col cols="4">
+                          <v-card>
+                            <template v-slot:title>
+                              Amount
+                            </template>
+                            <template v-slot:subtitle>
+                              How amount is calculated
+                            </template>
+                            <template v-slot:text>
+                              <v-select
+                                v-model="item.type"
+                                :items="['Absolute', 'Relative']"
+                                label="Amount type"
+                              ></v-select>
+                              <div v-if="item.type === 'Absolute'">
+                                <v-text-field label="Value" v-model="item.amount" suffix="$"></v-text-field>
+                                <v-row>
+                                  <v-col cols="12" sm="6"><v-text-field label="Min" v-model="item.min"></v-text-field></v-col>
+                                  <v-col cols="12" sm="6"><v-text-field label="Max" v-model="item.max"></v-text-field></v-col>
+                                </v-row>
+                                <v-select
+                                  v-model="item.interval"
+                                  :items="intervals"
+                                  label="Update frequency"
+                                ></v-select>
+                              </div>
+                              <div v-else>
+                                <v-text-field label="Factor" v-model="item.interval"></v-text-field>
+                              </div>
+                            </template>
+                          </v-card>
+                        </v-col>
+                         -->
+                        <v-col cols="6">
+                          <v-card>
+                            <template v-slot:title>
+                              Amount growth
+                            </template>
+                            <template v-slot:subtitle>
+                              How amount changes over time
+                            </template>
+                            <template v-slot:text>
+                              <v-select
+                                v-model="item.amount_growth.type"
+                                :items="['Fixed', 'Random Walk', 'Tabular', 'Inflation']"
+                                label="Growth type"
+                              ></v-select>
+                              <div v-if="item.amount_growth.type === 'Fixed'">
+                                <v-text-field label="Fixed growth" v-model="item.amount_growth.initial" suffix="%"></v-text-field>
+                                <v-select
+                                  v-model="item.amount_growth.interval"
+                                  :items="intervals_global"
+                                  label="Update frequency"
+                                ></v-select>
+                              </div>
+                              <div v-else-if="item.amount_growth.type === 'Random Walk'">
+                                <v-text-field label="Initial" v-model="item.amount_growth.initial" suffix="%"></v-text-field>
+                                <v-row>
+                                  <v-col cols="12" sm="4"><v-text-field label="Mean" v-model="item.amount_growth.mean"></v-text-field></v-col>
+                                  <v-col cols="12" sm="4"><v-text-field label="Std" v-model="item.amount_growth.std"></v-text-field></v-col>
+                                  <v-col cols="12" sm="4"><v-text-field label="Df" v-model="item.amount_growth.df"></v-text-field></v-col>
+                                </v-row>
+                                <v-select
+                                  v-model="item.amount_growth.interval"
+                                  :items="intervals_global"
+                                  label="Update frequency"
+                                ></v-select>
+                              </div>
+                              <div v-else-if="item.amount_growth.type === 'Tabular'">
+                                <!-- Create array of project.model.steps size -->
+                                <v-row v-for="(step, index) in parseInt(project.model.steps)" :key="index" style="margin-top: 0">
+                                  <v-col cols="12" sm="6" style="margin-top: 0; padding-top: 0; margin-bottom: 0; padding-bottom: 0">
+                                    <v-text-field 
+                                      :label="'Growth (' + project.model.interval + ': ' + (index + 1) + ')'" 
+                                      v-if="index > 0"
+                                      v-model="item.amount_growth.growth_values[index]" 
+                                      v-on:update:model-value="update_growth_tabular(item.amount, item.amount_growth.target_values, item.amount_growth.growth_values, 0)"
+                                      suffix="%"
+                                      type="number"
+                                    >
+                                      <template v-slot:append>
+                                        <v-btn 
+                                          icon="$mdi-arrow-down-right"
+                                          size="x-small"
+                                          variant="text"
+                                          @click="
+                                            fill_growth_tabular(item.amount_growth.growth_values[index], item.amount_growth.growth_values, index); 
+                                            update_growth_tabular(item.amount, item.amount_growth.target_values, item.amount_growth.growth_values, 0)
+                                          "
+                                        ></v-btn>
+                                      </template>
+                                    </v-text-field>
+                                    <!-- :disabled="true" -->
+                                    <v-text-field 
+                                      :label="'Growth (' + project.model.interval + ': ' + (index + 1) + ')'" 
+                                      v-else
+                                      v-model="zero"
+                                      suffix="%"
+                                      type="number"
+                                      min="0"
+                                      max="0"
+                                    >
+                                      <template v-slot:append>
+                                        <v-btn 
+                                          icon="$mdi-arrow-down-right"
+                                          size="x-small"
+                                          variant="text"
+                                          @click="
+                                            fill_growth_tabular(0, item.amount_growth.growth_values, 0); 
+                                            update_growth_tabular(item.amount, item.amount_growth.target_values, item.amount_growth.growth_values, 0)
+                                          "
+                                        ></v-btn>
+                                      </template>
+                                    </v-text-field>
+                                  </v-col>
+                                  <v-col cols="12" sm="6" style="margin-top: 0; padding-top: 0; margin-bottom: 0; padding-bottom: 0">
+                                    <!-- On update trigger target_values updatte -->
+                                    <v-text-field 
+                                      :label="'Amount (' + project.model.interval + ': ' + (index + 1) + ')'" 
+                                      v-if="index > 0"
+                                      v-model="item.amount_growth.target_values[index]" suffix="$"
+                                      v-on:update:model-value="update_growth_tabular(item.amount, item.amount_growth.target_values, item.amount_growth.growth_values, 1)"
+                                      type="number"
+                                      min="0"
+                                    >
+                                      <template v-slot:append>
+                                        <v-btn 
+                                          icon="$mdi-arrow-down-right"
+                                          size="x-small"
+                                          variant="text"
+                                          
+                                          @click="
+                                            fill_growth_tabular(item.amount_growth.target_values[index], item.amount_growth.target_values, index); 
+                                            update_growth_tabular(item.amount, item.amount_growth.target_values, item.amount_growth.growth_values, 1)
+                                          "
+                                        ></v-btn>
+                                      </template>
+                                    </v-text-field>
+                                    <v-text-field 
+                                      :label="'Amount (' + project.model.interval + ': ' + (index + 1) + ')'" 
+                                      v-else
+                                      suffix="$"
+                                      v-model="item.amount"
+                                      type="number"
+                                      min="0"
+                                    >
+                                      <template v-slot:append>
+                                        <v-btn 
+                                          icon="$mdi-arrow-down-right"
+                                          size="x-small"
+                                          variant="text"
+                                          @click="
+                                            fill_growth_tabular(item.amount, item.amount_growth.target_values, 0); 
+                                            update_growth_tabular(item.amount, item.amount_growth.target_values, item.amount_growth.growth_values, 1)
+                                          "
+                                        ></v-btn>
+                                      </template>
+                                    </v-text-field>
+                                  </v-col>
+                                </v-row>
+                              </div>
+                              <div v-else>
+                                <v-text-field label="Factor" v-model="item.amount_growth.factor"></v-text-field>
+                              </div>
+                            </template>
+                          </v-card>
+                        </v-col>
+                        <v-col cols="6">
+                          <v-card>
+                            <template v-slot:title>
+                              Amount type
+                            </template>
+                            <template v-slot:subtitle>
+                              Absolute or relative expense
+                            </template>
+                            <template v-slot:text>
+                              <v-select
+                                v-model="item.type"
+                                :items="['Absolute', 'Relative']"
+                                label="Amount type"
+                              ></v-select>
+                              <div v-if="item.type === 'Absolute'">
+                                <v-select
+                                  :disabled="true"
+                                  v-model="item.target"
+                                  :items="relativeSources"
+                                  label="Target"
+                                ></v-select>
+                                <v-row>
+                                  <v-col cols="12" sm="6"><v-text-field label="Min, $" v-model="item.min" suffix="$"></v-text-field></v-col>
+                                  <v-col cols="12" sm="6"><v-text-field label="Max, $" v-model="item.max" suffix="$"></v-text-field></v-col>
+                                </v-row>
+                                <v-select
+                                  v-model="item.interval"
+                                  :items="intervals_global"
+                                  label="Update frequency"
+                                ></v-select>
+                              </div>
+                              <div v-else>
+                                <v-select
+                                  v-model="item.target"
+                                  :items="relativeSources"
+                                  label="Target"
+                                ></v-select>
+                                <v-row>
+                                  <v-col cols="12" sm="6"><v-text-field label="Min, $" v-model="item.min" suffix="$"></v-text-field></v-col>
+                                  <v-col cols="12" sm="6"><v-text-field label="Max, $" v-model="item.max" suffix="$"></v-text-field></v-col>
+                                </v-row>
+                                <v-select
+                                  v-model="item.interval"
+                                  :items="intervals_global"
+                                  label="Update frequency"
+                                ></v-select>
+                              </div>
+                            </template>
+                          </v-card>
+                        </v-col>
+                      </v-row>
+                      <v-row>
+                        <v-col cols="12">
+                            <v-btn variant="flat" size="small" prepend-icon="$mdi-delete" @click="removeRow('expenses', item.id)">Delete</v-btn>
+                            <v-btn variant="flat" size="small" prepend-icon="$mdi-content-copy" @click="cloneRow('expenses', item.id)">Clone</v-btn>
+                        </v-col>
+                      </v-row>
+                    </v-container>
+                  </td>
+                </tr>
+              </template>
+
+                  <template #footer.prepend>
+            <!-- Any custom content, e.g. a button or text -->
+                  <div style="display: flex; align-items: center; justify-content: flex-start; flex-grow: 1; margin-left: 10px">
+                    <v-btn 
+                      prepend-icon="$mdi-plus" 
+                      color="black"
+                      variant="outlined"
+                      @click="addRow('expenses')"
+                      style="margin-right: 10px"
+                      rounded="0"
+                    >Add Row</v-btn>
+                    <v-btn 
+                      :icon="mobile ? '$mdi-view-list' : '$mdi-view-module'"
+                      color="black"
+                      variant="outlined"
+                      density="comfortable"
+                      @click="toggleView('expenses')"
+                      style="margin-right: 10px"
+                    ></v-btn>
+                  </div>
+          </template>
+
+                <!-- Inline Text Field for Name -->
+                <template #item.description="{ item }">
+                  <VInlineTextarea
+                    v-model="item.description"
+                    name="description"
+                    field-only
+                    hide-details 
+                    :icons="false"
+                    hide-save-icon
+                    hide-cancel-icon
+                    :clearable="false"
+                  />
+                </template>
+
+                <!-- Inline Numeric Field for Age -->
+                <template #item.amount="{ item }">
+                    <VInlineTextField
+                    v-model="item.amount"
+                    name="amount"
+                    type="number"
+                    min="0"
+                    field-only
+                    hide-details
+                    :icons="false"
+                    hide-save-icon
+                    hide-cancel-icon
+                    :clearable="false"
+                    />
+                </template>
+
+                <template #item.units="{ item }">
+                    <VInlineTextField
+                    v-model="item.units"
+                    name="units"
+                    type="number"
+                    min="1"
+                    field-only
+                    hide-details
+                    :icons="false"
+                    hide-save-icon
+                    hide-cancel-icon
+                    :clearable="false"
+                    />
+                </template>
+
+                <template #item.occupancy="{ item }">
+                    <VInlineTextField
+                    v-model="item.occupancy"
+                    name="occupancy"
+                    type="number"
+                    min="0"
+                    max="100"
+                    field-only
+                    hide-details
+                    :icons="false"
+                    hide-save-icon
+                    hide-cancel-icon
+                    :clearable="false"
+                    />
+                </template>
+
+                <!-- 
+                <template #item.units="{ item }">
+                  <VInlineSelect
+                    v-model="item.units"
+                    :items="incomeAmountUnits"
+                    item-title="name"
+                    item-value="code"
+                    name="units"
+                    field-only
+                    hide-details
+                    :icons="false"
+                    hide-save-icon
+                    hide-cancel-icon
+                    :clearable="false"
+                  />
+                </template>
+                 -->
+
+                <template #item.type="{ item }">
+                  <VInlineSelect
+                    v-model="item.type"
+                    :items="['Absolute', 'Relative']"
+                    item-title="name"
+                    item-value="code"
+                    name="type"
+                    field-only
+                    hide-details
+                    :icons="false"
+                    hide-save-icon
+                    hide-cancel-icon
+                    :clearable="false"
+                  />
+                </template>
+
+                <template #item.target="{ item }">
+                  <VInlineSelect
+                    v-model="item.target"
+                    :disabled="item.type == 'Absolute'"
+                    :items="relativeSources"
+                    item-title="name"
+                    item-value="code"
+                    name="target"
+                    field-only
+                    hide-details
+                    :icons="false"
+                    hide-save-icon
+                    hide-cancel-icon
+                    :clearable="false"
+                  />
+                </template>
+
+                <template #item.interval="{ item }">
+                  <VInlineSelect
+                    v-model="item.interval"
+                    :items="intervals_global"
+                    item-title="name"
+                    item-value="code"
+                    name="interval"
+                    field-only
+                    hide-details
+                    :icons="false"
+                    hide-save-icon
+                    hide-cancel-icon
+                    :clearable="false"
+                  />
+                </template>
+
+                <template #item.growth="{ item }">
+                  <VInlineSwitch
+                    v-model="item.growth"
+                    name="growth"
+                    field-only
+                    hide-details
+                    :icons="false"
+                    hide-save-icon
+                    hide-cancel-icon
+                    :clearable="false"
+                  />
+                </template>
+
+                <!-- Inline Switch Field for Active Status -->
+                <template #item.active="{ item }">
+                  <v-switch v-model="item.active" label="" hide-details></v-switch>
+                  <!--  
+                    <VInlineSwitch
+                    v-model="item.active"
+                    name="active"
+                    field-only
+                    hide-details
+                    :icons="false"
+                    hide-save-icon
+                    hide-cancel-icon
+                    :clearable="false"
+                    />
+                  -->
+                </template>
+
+                <!-- Inline Textarea for Comments -->
+                <template #item.comments="{ item }">
+                  <VInlineTextarea
+                    v-model="item.comments"
+                    name="comments"
+                    field-only
+                    hide-details 
+                    :icons="false"
+                    hide-save-icon
+                    hide-cancel-icon
+                    :clearable="false"
+                  />
+                </template>
+              </v-data-table>
+            </v-expansion-panel-text>
+          </v-expansion-panel>
+
+          <!-- Section 3: Debt -->
+           <!-- 
+            <v-expansion-panel id="panel_4" style="border-left: 3px solid #f94b84">
+              <v-expansion-panel-title>
+              Debt
+            </v-expansion-panel-title>
+            <v-expansion-panel-text>
+              <v-form>
+                <v-text-field label="Project Name" v-model="project_name"></v-text-field>
+                <v-text-field label="Last Name"></v-text-field>
+                <v-text-field label="Email"></v-text-field>
+              </v-form>
+            </v-expansion-panel-text>
+          </v-expansion-panel>
+          -->
+
+          <!-- Section 3: Debt -->
+          <!-- <v-expansion-panel id="panel_5" style="border-left: 3px solid #f94b84"> -->
+          <v-expansion-panel id="panel_4">
+            <v-expansion-panel-title>
+              Taxes
+            </v-expansion-panel-title>
+            <v-expansion-panel-text>
+              <v-row>
+                <v-col cols="12" md="4">
+                  <v-card>
+                    <template v-slot:title>
+                      Depreciation
+                    </template>
+                    <template v-slot:text>
+                      <!-- Depreciable -->
+                      <v-text-field label="Depreciation Amount" v-model="project.taxes.depreciation.amount" suffix="%" type="number" min="0"></v-text-field>
+                      <v-text-field label="Recovery Period" v-model="project.taxes.depreciation.period" suffix="years" type="number" min="0"></v-text-field>
+                    </template>
+                  </v-card>
+                </v-col>
+                <v-col cols="12" md="4">
+                  <v-card>
+                    <template v-slot:title>
+                      Disposition Taxes
+                    </template>
+                    <template v-slot:text>
+                      <v-text-field label="Capital Gains Tax Rate" v-model="project.taxes.capital_gains_tax_tate" suffix="%" type="number" min="0"></v-text-field>
+                      <v-text-field label="Recapture Tax Rate" v-model="project.taxes.recapture_tax_rate" suffix="%" type="number" min="0"></v-text-field>
+                    </template>
+                  </v-card>
+                </v-col>
+                <v-col cols="12" md="4">
+                  <v-card>
+                    <template v-slot:title>
+                      Marginal Taxes
+                    </template>
+                    <template v-slot:text>
+                      <v-text-field label="Marginal Tax Rate" v-model="project.taxes.marginal_tax_rate" suffix="%" type="number" min="0"></v-text-field>
+                    </template>
+                  </v-card>
+                </v-col>
+              </v-row>
+            </v-expansion-panel-text>
+          </v-expansion-panel>
+        </v-expansion-panels>
+  </v-container>
+      <v-container id="results-container" v-if="has_results">
+        <!-- <v-row id="panel_6">
+          <v-col>
+            <h3>Results</h3>
+          </v-col>
+        </v-row> -->
+        <v-row id="panel_5">
+          <v-col cols="12" md="6">
+            <v-card variant="text">
+              <template v-slot:title>
+                Inflation
+              </template>
+              <template v-slot:text>
+                <div id="results-inflation"></div>
+              </template>
+            </v-card>
+          </v-col>
+          <v-col cols="12" md="6">
+            <v-card variant="text">
+              <template v-slot:title>
+                Economic Growth
+              </template>
+              <template v-slot:text>
+                <div id="results-economic-growth"></div>
+              </template>
+            </v-card>
+          </v-col>
+          <!-- 
+          <v-col cols="12" md="4">
+            <v-card variant="text">
+              <template v-slot:title>
+                Discount Rate
+              </template>
+              <template v-slot:text>
+                <div id="results-discount-rate"></div>
+              </template>
+            </v-card>
+          </v-col>
+           -->
+        </v-row>
+        <v-row>
+          <v-col cols="12" md="6">
+            <v-card variant="text">
+              <template v-slot:title>
+                Debt balance
+              </template>
+              <template v-slot:text>
+                <div id="results-debt-balance"></div>
+              </template>
+            </v-card>
+          </v-col>
+          <v-col cols="12" md="6">
+            <v-card variant="text">
+              <template v-slot:title>
+                Debt service
+              </template>
+              <template v-slot:text>
+                <div id="results-debt-service"></div>
+              </template>
+            </v-card>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col cols="12">
+            <v-card variant="text">
+              <template v-slot:title>
+                Incomes, Expenses and Debt
+              </template>
+              <template v-slot:text>
+                <div id="results-ie"></div>
+              </template>
+            </v-card>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col cols="12" md="4">
+            <v-card variant="text">
+              <template v-slot:title>
+                Incomes <span style="font-weight: 200;">(monthly)</span>
+              </template>
+              <template v-slot:text>
+                <div id="results-incomes-circular"></div>
+              </template>
+            </v-card>
+          </v-col>
+          <v-col cols="12" md="4">
+            <v-card variant="text">
+              <template v-slot:title>
+                Expenses <span style="font-weight: 200;">(monthly)</span>
+              </template>
+              <template v-slot:text>
+                <div id="results-expenses-circular"></div>
+              </template>
+            </v-card>
+          </v-col>
+          <v-col cols="12" md="4">
+            <v-card variant="text">
+              <template v-slot:title>
+                Debt  <span style="font-weight: 200;">(monthly)</span>
+              </template>
+              <template v-slot:text>
+                <div id="results-debt-circular"></div>
+              </template>
+            </v-card>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col cols="12">
+            <v-card variant="text">
+              <template v-slot:title>
+                Before Tax Cash Flow <span style="font-weight: 200;">(BTCF)</span>
+              </template>
+              <template v-slot:text>
+                <div id="results-btcf"></div>
+              </template>
+            </v-card>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col cols="12">
+            <v-card variant="text">
+              <template v-slot:title>
+                After Tax Cash Flow <span style="font-weight: 200;">(ATCF)</span>
+              </template>
+              <template v-slot:text>
+                <div id="results-atcf"></div>
+              </template>
+            </v-card>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col cols="12" md="6">
+            <v-card variant="text">
+              <template v-slot:title>
+                Before Tax IRR <span style="font-weight: 200;">(annual)</span>
+              </template>
+              <template v-slot:text>
+                <div id="results-btirr"></div>
+              </template>
+            </v-card>
+          </v-col>
+          <v-col cols="12" md="6">
+            <v-card variant="text">
+              <template v-slot:title>
+                After Tax IRR <span style="font-weight: 200;">(annual)</span>
+              </template>
+              <template v-slot:text>
+                <div id="results-atirr"></div>
+              </template>
+            </v-card>
+          </v-col>
+        </v-row>
+          <!-- 
+            <v-col cols="4">
+              <v-card variant="text">
+                <template v-slot:title>
+                Inflation
+              </template>
+              <template v-slot:text>
+                <div id="results-1"></div>
+              </template>
+            </v-card>
+          </v-col>
+          <v-col cols="4">
+            <v-card variant="text">
+              <template v-slot:title>
+                Discount Rate
+              </template>
+              <template v-slot:text>
+                <div id="results-2"></div>
+              </template>
+            </v-card>
+          </v-col>
+          -->
+        <div id="results"></div>
+      </v-container>
+    </v-main>
+  </v-app>
+</template>
+
+<script>
+import * as Plot from "@observablehq/plot"
+import * as Inputs from "@observablehq/inputs"
+// import style from inputs dist/index.css
+import "@observablehq/inputs/dist/index.css"
+import * as projects from "./projects"
+import { de, fa } from "vuetify/locale"
+import LZString from 'lz-string'
+
+// import htl
+import { html } from "htl"
+
+function PMT(rate, periods, present, future = 0, type = 0) {
+  // Validate that rate and periods are numbers.
+  if (typeof rate !== 'number' || typeof periods !== 'number') {
+    return NaN;
+  }
+
+  // When the interest rate is 0, use a simple division.
+  if (rate === 0) {
+    return -((present + future) / periods);
+  }
+
+  // Calculate the compound term (1 + rate)^periods.
+  const term = Math.pow(1 + rate, periods);
+
+  // For type 0 (payments due at end of period)
+  // and type 1 (payments due at beginning of period),
+  // the formula slightly differs.
+  if (type === 1) {
+    return - (rate * (present * term + future)) / ((term - 1) * (1 + rate));
+  } else {
+    return - (rate * (present * term + future)) / (term - 1);
+  }
+}
+
+function PV(rate, nper, pmt, fv = 0, type = 0) {
+  // Validate that all inputs are numbers.
+  if (
+    typeof rate !== 'number' ||
+    typeof nper !== 'number' ||
+    typeof pmt !== 'number' ||
+    typeof fv !== 'number' ||
+    typeof type !== 'number'
+  ) {
+    return NaN;
+  }
+
+  // When the interest rate is 0, the formula simplifies to:
+  // PV = -(pmt * nper + fv)
+  if (rate === 0) {
+    return -(pmt * nper + fv);
+  }
+
+  // For non-zero rate, the present value is calculated as:
+  // PV = -[ pmt*(1 + rate*type)*(1 - (1+rate)^(-nper))/rate + fv*(1+rate)^(-nper) ]
+  const pv = -(
+    pmt * (1 + rate * type) * (1 - Math.pow(1 + rate, -nper)) / rate +
+    fv * Math.pow(1 + rate, -nper)
+  );
+  return pv;
+}
+
+function IRR(cashFlows, guess = 0.1) {
+  const tolerance = 1e-7;      // How close to zero we need the NPV change to be.
+  const maxIterations = 1000;  // Maximum number of iterations allowed.
+  let rate = guess;            // Starting guess for IRR.
+
+  for (let iter = 0; iter < maxIterations; iter++) {
+    let npv = 0;
+    let dNPV = 0;
+
+    // Calculate NPV and its derivative at the current rate.
+    for (let t = 0; t < cashFlows.length; t++) {
+      npv += cashFlows[t] / Math.pow(1 + rate, t);
+      // For t=0 the derivative term is 0 because it's constant.
+      if (t > 0) {
+        dNPV -= t * cashFlows[t] / Math.pow(1 + rate, t + 1);
+      }
+    }
+
+    // Newton-Raphson formula to update the rate.
+    const newRate = rate - npv / dNPV;
+    
+    // If the rate change is very small, we have converged.
+    if (Math.abs(newRate - rate) < tolerance) {
+      return newRate;
+    }
+    
+    rate = newRate;
+  }
+  
+  // If convergence wasn't reached, return the current estimate.
+  return rate;
+}
+
+function mean(arr) {
+  return arr.reduce((a, b) => a + b, 0) / arr.length;
+}
+
+// Simple population std function
+function std(arr) {
+  const m = mean(arr);
+  const variance = arr.reduce((acc, v) => acc + (v - m) ** 2, 0) / arr.length;
+  return Math.sqrt(variance);
+}
+
+function binomial(n, p) {
+  let successes = 0;
+  for (let i = 0; i < n; i++) {
+    if (Math.random() < p) successes++;
+  }
+  return successes;
+}
+
+function normal(mean, std) {
+  let u = 0, v = 0;
+  while (u === 0) u = Math.random();
+  while (v === 0) v = Math.random();
+  const z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+  return z * std + mean;
+}
+
+// Standard Normal using the Box-Muller transform
+function normalRandom() {
+  let u = Math.random();
+  let v = Math.random();
+  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+}
+
+// Gamma random variable using Marsaglia and Tsang algorithm
+// Generates a sample from Gamma(alpha, beta) where alpha is the shape and beta is the scale.
+function gammaRandom(alpha, beta) {
+  if (alpha < 1) {
+    // Use the method for alpha < 1: generate gamma for (alpha + 1) then adjust.
+    return gammaRandom(1 + alpha, beta) * Math.pow(Math.random(), 1 / alpha);
+  }
+  const d = alpha - 1 / 3;
+  const c = 1 / Math.sqrt(9 * d);
+  while (true) {
+    const Z = normalRandom();
+    const U = Math.random();
+    const V = Math.pow(1 + c * Z, 3);
+    if (V > 0 && Math.log(U) < 0.5 * Z * Z + d - d * V + d * Math.log(V)) {
+      return d * V * beta;
+    }
+  }
+}
+
+// Chi-square random variable as a special case of gamma:
+// chiSquareRandom(df) ~ Gamma(df/2, 2)
+function chiSquareRandom(df) {
+  return gammaRandom(df / 2, 2);
+}
+
+// Student-t random variable with parameters: mean, std (scale), and degrees of freedom (df)
+// Sampling: t = Z / sqrt(V/df) where Z ~ N(0,1) and V ~ chi-square(df)
+function student_t(mean, std, df) {
+  const Z = normalRandom();
+  const V = chiSquareRandom(df);
+  const t = Z / Math.sqrt(V / df);
+  return mean + std * t;
+}
+
+function parse_interval(frequency) {
+  switch (frequency.toLowerCase()) {
+    case 'month':
+      return 1;
+    case 'quarter':
+      return 3;
+    case 'year':
+      return 12;
+    default:
+      return 1;
+  }
+}
+
+function aggregate_samples(data) {
+  // 1. Group objects by month
+  const grouped = {};
+  data.forEach(d => {
+    if (!grouped[d.month]) {
+      grouped[d.month] = [];
+    }
+    grouped[d.month].push(d);
+  });
+
+  // 2. For each group (month), compute means and std for each numeric field
+  const aggregated = [];
+  for (const month in grouped) {
+    const rows = grouped[month];
+
+    // Start building the aggregated row
+    const result = { month: +month };
+
+    // Figure out which fields to aggregate 
+    // (exclude grouping keys like "month" or "sample", or anything non-numeric)
+    const fields = Object.keys(rows[0]).filter(
+      k => !['month', 'sample'].includes(k)
+    );
+
+    fields.forEach(field => {
+      const values = rows.map(r => r[field]);
+      // Compute mean and std using your existing mean/std functions
+      const avg = mean(values);
+      const s = std(values);
+
+      // Store them in the aggregated object
+      result[field] = avg;           // e.g. atcf => mean
+      result[field + '_std'] = s;    // e.g. atcf_std => std
+    });
+
+    aggregated.push(result);
+  }
+  return aggregated;
+}
+
+// Example usage:
+// console.log("Sample from Student-t:", student_t(0, 1, 10));
+
+// console.log(examples)
+export default {
+  // Properties returned from data() become reactive state
+  // and will be exposed on `this`.
+  data() {
+    return {
+      zero: 0,
+      active_panels: [0,1,2,3,4],
+      showAlert: false,
+      drawer: true,
+      has_results: false,
+      project: null,
+      discrete_occupancy: false,
+      incomeHeaders: [
+        { title: 'Description', value: 'description', minWidth: 250, sortable: true },
+        { title: 'Amount, $', value: 'amount' , minWidth: 150, sortable: true },
+        { title: 'Num. of units', value: 'units' , minWidth: 150, sortable: true },
+        { title: 'Occupancy, %', value: 'occupancy' , minWidth: 150, sortable: true },
+        { title: 'Interval', value: 'interval' , minWidth: 150, sortable: true },
+        { title: 'Active', value: 'active' , minWidth: 70 },
+        // { title: '', key: 'actions', sortable: false },
+      ],
+      expensesHeaders: [
+        { title: 'Description', value: 'description', minWidth: 250, sortable: true },
+        { title: 'Amount', value: 'amount' , minWidth: 150, sortable: true },
+        { title: 'Type', value: 'type' , minWidth: 150, sortable: true },
+        { title: 'Target', value: 'target' , minWidth: 150, sortable: true },
+        { title: 'Interval', value: 'interval' , minWidth: 150, sortable: true },
+        { title: 'Active', value: 'active' , minWidth: 70 },
+      ],
+      intervals_global: [
+        'Month',
+        'Quarter',
+        'Year',
+      ],
+      incomeAmountUnits: [
+        'Total',
+        'Per area',
+      ],
+      mobile: false,
+      countries: [
+        { code: 'US', name: 'United States' },
+        { code: 'UK', name: 'United Kingdom' },
+        { code: 'CA', name: 'Canada' },
+        { code: 'AU', name: 'Australia' },
+        { code: 'DE', name: 'Germany' },
+      ],
+      incomeExpanded: [],
+      expensesExpanded: [],
+    }
+  },
+  computed: {
+    /*
+    interval() {
+      const economic_growth_interval = parse_interval(this.project.model.economic_growth.interval)
+      const inflation_interval = parse_interval(this.project.model.inflation.interval)
+      const discount_rate_interval = parse_interval(this.project.model.discount_rate.interval)
+
+      const intervals = [economic_growth_interval, inflation_interval, discount_rate_interval]
+      // iterate over incomes and expenses to determine the maximum frequency
+      this.project.income.items.forEach(item => {
+        intervals.push(parse_interval(item.interval))
+        if (item.amount_growth.type === 'Custom') {
+          intervals.push(parse_interval(item.amount_growth.interval))
+        }
+        if (item.occupancy_growth.type === 'Custom') {
+          intervals.push(parse_interval(item.occupancy_growth.interval))
+        }
+      })
+      this.project.expenses.items.forEach(item => {
+        intervals.push(parse_interval(item.interval))
+        if (item.amount_growth.type === 'Custom') {
+          intervals.push(parse_interval(item.amount_growth.interval))
+        }
+      })
+
+      return Math.min(...intervals)
+    },
+    */
+    intervals() {
+      let interval = parse_interval(this.project.model.interval)
+      console.log('Interval:', interval, this.project.model.interval)
+      if (interval === 1) {
+        return ['Month', 'Quarter', 'Year']
+      } else if (interval === 3) {
+        return ['Quarter', 'Year']
+      } else {
+        return ['Year']
+      }
+    },
+    relativeSources() {
+      let sources = []
+      this.project.income.items.forEach(item => {
+        if (item.active) {
+          sources.push(item.description + ' ($ total)')
+          sources.push(item.description + ' (occupied)')
+        }
+      })
+      sources.push('Gross Income')
+      return sources
+    }
+    // incomeExpanded() {
+    //   // Return array of income indices that contain item.growth === true
+    //   return this.project.income.items.map((item, index) => {
+    //     if (item.growth) return index
+    //   }).filter((index) => index !== undefined)
+    // },
+  },
+  // Methods are functions that mutate state and trigger updates.
+  // They can be bound as event handlers in templates.
+  methods: {
+    fill_growth_tabular(value, arr, i) {
+      for (let j = i; j < this.project.model.steps; j++) {
+        arr[j] = value
+      }
+    },
+    update_growth_tabular(baseAmount, amountValues, growthValues, flag) {
+      // Ensure there is at least one period (the base period)
+      baseAmount = parseFloat(baseAmount)
+      console.log('Updating growth tabular:', baseAmount, amountValues, growthValues, flag)
+
+      if (!Array.isArray(amountValues) || !Array.isArray(growthValues)) return;
+
+      // Set period 0: base amount and zero growth
+      if (amountValues.length === 0) {
+        amountValues.push(baseAmount);
+      } else {
+        amountValues[0] = baseAmount;
+      }
+      if (growthValues.length === 0) {
+        growthValues.push(0);
+      } else {
+        growthValues[0] = 0;
+      }
+
+      // Determine how many periods we have (using the longer array length)
+      const len = Math.max(amountValues.length, growthValues.length);
+
+      if (flag === 0) {
+        // Flag 1: update target_values from growth_values.
+        // For period 1 and beyond, each amount is the previous amount multiplied by (1 + growth_rate/100)
+        for (let i = 1; i < len; i++) {
+          const growthRate = growthValues[i] ? Number(growthValues[i]) : 0;
+          const previousAmount = (amountValues[i - 1] !== undefined) ? amountValues[i - 1] : baseAmount;
+          amountValues[i] = previousAmount * (1 + growthRate / 100);
+        }
+      } else if (flag === 1) {
+        // Flag 0: update growth_values from target_values.
+        // For period 1 and beyond, the growth rate is derived from the change from the previous period.
+        for (let i = 1; i < len; i++) {
+          if (amountValues[i - 1] !== 0) {
+            growthValues[i] = ((amountValues[i] / amountValues[i - 1]) - 1) * 100;
+          } else {
+            growthValues[i] = 0;
+          }
+        }
+      }
+    },
+    shuffle_logo() {
+      for (let i=1; i<=5; i++) {
+        let el = document.getElementById(`logo-${i}`)
+        let shift = Math.round(Math.random() * 30 - 15)
+        el.style.top = `${shift}px`
+      }
+    },
+    addRow(table) {
+      const id = this.project[table].items.length + 1
+      const newRow = {
+        id: id,
+        description: `Item ${id}`,
+        active: true,
+        amount: 0,
+        interval: 'Year',
+        min: null,
+        max: null,
+        amount_growth: {
+          initial: 0,
+          mean: 0,
+          std: 0,
+          df: 0,
+          type: 'Fixed',
+          interval: 'Month',
+          factor: 1,
+          target_values: [],
+          growth_values: [],
+        }
+      }
+      if (table === 'income') {
+        newRow.units = 1
+        newRow.occupancy = 100
+        newRow.occupancy_growth = {
+          initial: 0,
+          mean: 0,
+          std: 0,
+          df: 0,
+          type: 'Fixed',
+          interval: 'Month',
+          factor: 1,
+          target_values: [],
+          growth_values: [],
+        }
+      } else if (table === 'expenses') {
+        newRow.type = 'Absolute'
+        newRow.target = 'None'
+      }
+      this.project[table].items.push(newRow)
+    },
+    toggleView(table) {
+      console.log('Toggling view...')
+      this.mobile = !this.mobile
+    },
+    goToPanel(panel) {
+      // Set the active panel by finding its index
+      if (!this.active_panels.includes(panel)) {
+        this.active_panels.push(panel)
+        this.active_panels = this.active_panels.sort()
+      }
+      if (panel === 5) {
+        // Results 
+        console.log('Go to results panel')
+        if (!this.has_results) {
+          console.log('No results: running simulation...')
+          this.run()
+        }
+      }
+      this.$nextTick(() => {
+        const el = document.getElementById(`panel_${panel}`)
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+      })
+    },
+    load_example(index) {
+      console.log('Loading example', index)
+      const project_loaded = JSON.parse(JSON.stringify(projects[`example_${index}`]))
+      this.project = this.merge_with_defaults(project_loaded)
+      this.active_panels = [0,1,2,3,4]
+      this.has_results = false
+    },
+    round(value) {
+      const precision = this.project.model.precision || 0
+      const factor = Math.pow(10, precision);
+      return Math.round(value * factor) / factor;
+    },
+    run() {
+      // Model params
+      const model_interval = parse_interval(this.project.model.interval) // How many months in one step
+      const model_frequency = 12 / model_interval // How many steps in one year
+      const model_steps = parseInt(this.project.model.steps) // Number of steps to project into the future
+      const model_months = model_steps * model_interval // Number of months to project into the future
+
+      const economic_growth_interval = this.project.model.economic_growth.type === 'Tabular' 
+        ? model_interval
+        : parse_interval(this.project.model.economic_growth.interval)
+      const inflation_interval = this.project.model.inflation.type === 'Tabular'
+        ? model_interval
+        : parse_interval(this.project.model.inflation.interval)
+      const discount_rate_interval = parse_interval(this.project.model.discount_rate.interval)
+
+      // Debt
+      const debt_interval = parse_interval(this.project.property.debt.interval) // 1 or 12
+      const debt_frequency = 12 / debt_interval // How many debt payments per year
+      const debt_rate_per_debt_interval = parseFloat(this.project.property.debt.rate) / (100 * debt_frequency)
+      const debt_periods = parseInt(this.project.property.debt.term) * debt_frequency
+      const debt_amount = parseFloat(this.project.property.debt.amount)
+      const debt_service_per_debt_interval = -PMT(
+        debt_rate_per_debt_interval,
+        debt_periods,
+        debt_amount
+      )
+      console.log(`PMT(rate=${debt_rate_per_debt_interval}, periods=${debt_periods}, present=${debt_amount}) = ${debt_service_per_debt_interval}`)
+      const debt_service_per_model_interval = (debt_interval < model_interval)
+        ? debt_service_per_debt_interval * model_interval / debt_interval
+        : debt_service_per_debt_interval
+      console.log(`Debt service: ${debt_service_per_model_interval} (debt_interval=${debt_interval}, model_interval=${model_interval})`)
+
+      const purchase_price = parseFloat(this.project.property.purchase.price)
+      const purchase_costs = parseFloat(this.project.property.purchase.costs)
+      const purchase_basis = purchase_price + purchase_costs
+      const initial_equity = purchase_basis - debt_amount
+
+      const sale_price = parseFloat(this.project.property.sale.price)
+      const sale_costs = parseFloat(this.project.property.sale.costs)
+      const netSale = sale_price - sale_costs
+
+      // Depreciation
+      const depreciation_rate = parseFloat(this.project.taxes.depreciation.amount) / 100
+      const depreciation_period = parseFloat(this.project.taxes.depreciation.period)
+      const depreciation_per_month = depreciation_rate * purchase_price / (depreciation_period * 12)
+      // const depreciation_per_model_interval = depreciation_rate * purchase_price / (depreciation_period * model_frequency)
+      // console.log(`Depreciation: ${depreciation_per_model_interval}`)
+
+      // Prepare an array to hold the cumulative income per month.
+      let results_data = []
+
+      let effective_gross_income_max = 0
+      let expenses_max = 0
+
+      let btirr_samples = []
+      let atirr_samples = []
+
+      for (let sample = 0; sample < parseInt(this.project.model.samples); sample++) {
+
+
+        function print(...msg) {
+          if (sample === 0) {
+            console.log(...msg)
+          }
+        }
+        let incomes = JSON.parse(JSON.stringify(this.project.income.items))
+        let expenses = JSON.parse(JSON.stringify(this.project.expenses.items))
+
+        let economic_growth =  this.project.model.economic_growth.active 
+          ? this.project.model.economic_growth.type === 'Tabular'
+            ? parseFloat(this.project.model.economic_growth.growth_values[0])
+            : parseFloat(this.project.model.economic_growth.initial)
+          : 0
+        let inflation = this.project.model.inflation.active 
+          ? this.project.model.inflation.type === 'Tabular'
+            ? parseFloat(this.project.model.inflation.growth_values[0])
+            : parseFloat(this.project.model.inflation.initial)
+          : 0
+        let discount_rate = this.project.model.discount_rate.active 
+          ? this.project.model.discount_rate.type === 'Tabular'
+            ? parseFloat(this.project.model.discount_rate.growth_values[0])
+            : parseFloat(this.project.model.discount_rate.initial)
+          : 0
+
+        // Loop over each month
+        let debt_balance_prev = debt_amount
+        let debt_balance_new = 0
+        let debt_service_paid = 0
+        let debt_principal_paid = 0
+        let debt_interest_paid = 0
+
+        let expenses_per_model_interval = 0
+        let potential_income_per_model_interval = 0
+        let effective_gross_income_per_model_interval = 0
+        let depreciation_per_model_interval = 0
+
+        // results_data.push({
+        //   sample,
+        //   step: 0,
+        //   month: 0,
+        //   economic_growth,
+        //   inflation,
+        //   discount_rate,
+        //   debt_paid: 0,
+        //   debt_interest_paid,
+        //   debt_principal_paid,
+        //   debt_balance: debt_balance_prev,
+        //   effective_gross_income_per_model_interval,
+        //   potential_income_per_model_interval,
+        //   expenses_per_model_interval: -expenses_per_model_interval,
+        //   net_operating_income: 0,
+        //   btcf: 0,
+        //   taxes: 0,
+        //   atcf: 0
+        // })
+
+        let btcfs = []
+        let atcfs = []
+        // let month = 0
+        // while (month < model_months) {
+        //   month += 1
+        let step = 0
+        for (let month = 1; month <= model_months; month ++) {
+          // Depreciation
+          if ((month == 1) || (month == model_months)) {
+            depreciation_per_model_interval += depreciation_per_month / 2
+          } else {
+            depreciation_per_model_interval += depreciation_per_month
+          }
+          // We still perform monthly steps in case some variables need to be aggregated
+
+          // Debt
+          if (debt_balance_prev > 0) {
+            if (month % debt_interval === 0) {
+              debt_balance_new = PV(
+                debt_rate_per_debt_interval, 
+                debt_periods - month / debt_interval,
+                -debt_service_per_debt_interval
+              )
+              const debt_principal_paid_current = debt_balance_prev - debt_balance_new
+              const debt_interest_paid_current = debt_service_per_debt_interval - debt_principal_paid_current
+              debt_principal_paid += debt_principal_paid_current
+              debt_interest_paid += debt_interest_paid_current
+              debt_service_paid += debt_service_per_debt_interval
+              debt_balance_prev = debt_balance_new
+            } 
+          } else {
+            debt_balance_new = 0
+            debt_balance_prev = 0
+            debt_interest_paid = 0
+            debt_principal_paid = 0
+            debt_service_paid = 0
+          }
+
+
+
+          // INCOMES
+          incomes.filter(item => item.active).forEach(item => {
+            // Determine the monthly factor based on frequency
+            const units_total = parseInt(item.units)
+            const item_interval = parse_interval(item.interval)
+            const amount_growth_interval =  parse_interval(item.amount_growth.interval)
+            const occupancy_growth_interval = parse_interval(item.occupancy_growth.interval)
+
+            const item_amount = parseFloat(item.amount)
+            const occupancy = parseFloat(item.occupancy)
+
+            const units_occupied = this.discrete_occupancy
+              ? Math.round(parseInt(item.units) * occupancy / 100)
+              : parseInt(item.units) * occupancy / 100
+
+            // Increment aggregated income
+            if (month % item_interval === 0) {
+              effective_gross_income_per_model_interval += item_amount * units_occupied
+              potential_income_per_model_interval += item_amount * units_total
+            }
+
+            // Update the item amount, amount growth
+            if ((item.amount_growth.type === 'Fixed') && (month % amount_growth_interval === 0)) {
+              item.amount = item_amount * (1 + parseFloat(item.amount_growth.initial) / 100)
+            } else if ((item.amount_growth.type === 'Random Walk') && (month % amount_growth_interval === 0)) {
+              item.amount = item_amount * (1 + parseFloat(item.amount_growth.initial) / 100)
+              item.amount_growth.initial = parseFloat(item.amount_growth.initial) + student_t(
+                parseFloat(item.amount_growth.mean),
+                parseFloat(item.amount_growth.std),
+                parseFloat(item.amount_growth.df)
+              )
+            } else if (item.amount_growth.type === 'Tabular') {
+              // Tabular growth is aligned with the model interval (total number of steps)
+              // Simulation loop goes over each month, so we need to increment the step
+              item.amount = item.amount_growth.target_values[step + 1] || 0
+            } else if ((item.amount_growth.type === 'Inflation') && (month % inflation_interval === 0)) {
+              item.amount = item_amount * (1 + inflation / 100)
+            }
+
+            // Update occupancy, occupancy growth
+            if ((item.occupancy_growth.type === 'Fixed') && (month % occupancy_growth_interval === 0)) {
+              item.occupancy = occupancy * (1 + parseFloat(item.occupancy_growth.initial) / 100)
+            } else if ((item.occupancy_growth.type === 'Random Walk') && (month % occupancy_growth_interval === 0)) {
+              item.occupancy = occupancy * (1 + parseFloat(item.occupancy_growth.initial) / 100)
+              item.occupancy_growth.initial = parseFloat(item.occupancy_growth.initial) + student_t(
+                parseFloat(item.occupancy_growth.mean),
+                parseFloat(item.occupancy_growth.std),
+                parseFloat(item.occupancy_growth.df)
+              )
+            } else if (item.occupancy_growth.type === 'Tabular') {
+              // Tabular growth is aligned with the model interval (total number of steps)
+              // Simulation loop goes over each month, so we need to increment the step
+              item.occupancy = item.occupancy_growth.target_values[step + 1] || 0
+            } else if ((item.occupancy_growth.type === 'Economic Growth') && (month % economic_growth_interval === 0)) {
+              console.log('Month:', month, 'Economic growth:', economic_growth, 'Occupancy:', item.occupancy, 'Vacancy:', 100 - item.occupancy)
+              item.occupancy = occupancy * (1 + economic_growth / 100)
+            }
+            if (item.occupancy < 0) item.occupancy = 0
+            if (item.occupancy > 100) item.occupancy = 100
+          });
+
+          // Update max values
+          effective_gross_income_max = Math.max(effective_gross_income_max, effective_gross_income_per_model_interval)
+
+          // EXPENSES
+          expenses.filter(item => item.active).forEach(item => {
+            // Determine the monthly factor based on frequency
+            const item_interval = parse_interval(item.interval)
+            const amount_growth_interval =  parse_interval(item.amount_growth.interval)
+            const item_amount = parseFloat(item.amount)
+
+            // Calculate base monthly amount
+            if (month % item_interval === 0) {
+              if (item.type === 'Absolute') {
+                expenses_per_model_interval += item_amount
+              } else if (item.type === 'Relative') {
+                // Ok, here's the tricky part
+                // We need to determine the target income source per current item interval
+
+                let target = item.target
+                let targetAmount = 0
+                if (target === 'Gross Income') {
+                  targetAmount = effective_gross_income_per_model_interval
+                } else {
+                  let targetItem = incomes.find(i => i.description === target)
+                  targetAmount = parseFloat(targetItem.amount) * parseInt(targetItem.units)
+                }
+                expenses_per_model_interval += targetAmount * item_amount
+              }
+            }
+            if ((item.amount_growth.type === 'Fixed') && (month % amount_growth_interval === 0)) {
+              item.amount = item_amount * (1 + parseFloat(item.amount_growth.initial) / 100)
+            } else if ((item.amount_growth.type === 'Random Walk') && (month % amount_growth_interval === 0)) {
+              item.amount = item_amount * (1 + parseFloat(item.amount_growth.initial) / 100)
+              item.amount_growth.initial = parseFloat(item.amount_growth.initial) + student_t(
+                parseFloat(item.amount_growth.mean),
+                parseFloat(item.amount_growth.std),
+                parseFloat(item.amount_growth.df)
+              )
+            } else if (item.amount_growth.type === 'Tabular') {
+              // Tabular growth is aligned with the model interval (total number of steps)
+              // Simulation loop goes over each month, so we need to increment the step
+              item.amount = item.amount_growth.target_values[step + 1] || 0
+            } else if ((item.amount_growth.type === 'Inflation') && (month % inflation_interval === 0)) {
+              item.amount = item_amount * (1 + inflation / 100)
+            }
+          })
+
+          // Update max values
+          expenses_max = Math.max(expenses_max, expenses_per_model_interval)
+
+
+
+          if (month % model_interval === 0) {
+            // Calculate the net income
+            step += 1
+            effective_gross_income_per_model_interval = this.round(effective_gross_income_per_model_interval)
+            expenses_per_model_interval = this.round(expenses_per_model_interval)
+            potential_income_per_model_interval = this.round(potential_income_per_model_interval)
+            let net_operating_income = effective_gross_income_per_model_interval - expenses_per_model_interval
+            let btcf = this.round(net_operating_income - debt_service_paid)
+            let taxes = (net_operating_income - debt_interest_paid - depreciation_per_model_interval) * (parseFloat(this.project.taxes.marginal_tax_rate) / 100)
+            if (taxes < 0) taxes = 0
+            let atcf = this.round(btcf - taxes)
+            // console.log('net_operating_income', net_operating_income, 'BTCF', btcf, 'ATCF', atcf, 'Monthly depreciation', depreciation_per_model_interval)
+
+            // Update hist
+            btcfs.push(btcf)
+            atcfs.push(atcf)
+
+            results_data.push({ 
+              sample,
+              step,
+              month, 
+              economic_growth,
+              inflation,
+              discount_rate,
+              debt_paid: debt_service_paid,
+              debt_interest_paid,
+              debt_principal_paid,
+              debt_balance: debt_balance_prev,
+              depreciation_per_model_interval,
+              effective_gross_income_per_model_interval,
+              potential_income_per_model_interval,
+              expenses_per_model_interval: -expenses_per_model_interval,
+              net_operating_income,
+              btcf,
+              taxes,
+              atcf,
+            })
+
+            // Reset aggregated values
+            debt_interest_paid = 0
+            debt_principal_paid = 0
+            debt_service_paid = 0
+
+            expenses_per_model_interval = 0
+            potential_income_per_model_interval = 0
+            effective_gross_income_per_model_interval = 0
+            depreciation_per_model_interval = 0
+          }
+
+          // Update the rates
+          if ((month % economic_growth_interval === 0) && (this.project.model.economic_growth.active)) {
+            if (this.project.model.economic_growth.type === 'Random Walk') {
+              economic_growth += student_t(
+                parseFloat(this.project.model.economic_growth.mean),
+                parseFloat(this.project.model.economic_growth.std),
+                parseFloat(this.project.model.economic_growth.df)
+              )
+            } else if (this.project.model.economic_growth.type === 'Tabular') {
+              economic_growth = this.project.model.economic_growth.growth_values[step] || 0
+            }
+          }
+
+          if ((month % inflation_interval === 0) && (this.project.model.inflation.active)) {
+            if (this.project.model.inflation.type === 'Random Walk') {
+              inflation += student_t(
+                parseFloat(this.project.model.inflation.mean),
+                parseFloat(this.project.model.inflation.std),
+                parseFloat(this.project.model.inflation.df)
+              )
+            } else if (this.project.model.inflation.type === 'Tabular') {
+              inflation = this.project.model.inflation.growth_values[step] || 0
+            }
+          }
+
+          if ((month % discount_rate_interval === 0) && (this.project.model.discount_rate.active)) {
+            discount_rate += student_t(
+              parseFloat(this.project.model.discount_rate.mean),
+              parseFloat(this.project.model.discount_rate.std),
+              parseFloat(this.project.model.discount_rate.df)
+            )
+          }
+
+        } // --> month loop
+
+        // Buy/Selling
+        const debt_balance_final = debt_balance_new
+        const before_tax_equity_reversion = netSale - debt_balance_final
+
+        const depreciation_gain = depreciation_per_model_interval * model_steps
+        const capital_gain = sale_price - purchase_price - purchase_costs - sale_costs
+
+        const depreciation_tax = depreciation_gain * (parseFloat(this.project.taxes.recapture_tax_rate) / 100)
+        const capital_gain_tax = capital_gain * (parseFloat(this.project.taxes.capital_gains_tax_tate) / 100)
+        const totalTax = depreciation_tax + capital_gain_tax
+
+        const after_tax_equity_reversion = before_tax_equity_reversion - totalTax 
+
+        // btcfs[-1] = btcfs[-1] + before_tax_equity_reversion
+        btcfs = [-initial_equity, ...btcfs]
+        btcfs[btcfs.length - 1] += before_tax_equity_reversion
+        const btirr_per_model_interval = IRR(btcfs)
+        const btirr_per_year = Math.pow(1 + btirr_per_model_interval, model_frequency) - 1 // annualize
+        console.log('BTCF:', btcfs)
+        console.log('BTIRR:', btirr_per_model_interval)
+        console.log('BTIRR:', btirr_per_year)
+        btirr_samples.push(btirr_per_year * 100)
+
+        atcfs = [-initial_equity, ...atcfs]
+        atcfs[atcfs.length - 1] += after_tax_equity_reversion
+        const atirr_per_model_interval = IRR(atcfs)
+        const atirr_per_year = Math.pow(1 + atirr_per_model_interval, model_frequency) - 1 // annualize
+        console.log('ATCF:', atcfs)
+        console.log('ATIRR:', atirr_per_model_interval)
+        console.log('ATIRR:', atirr_per_year)
+        atirr_samples.push(atirr_per_year * 100)
+      } // --> sample loop
+
+      console.log('Results data:', results_data)
+      const results_data_aggregated = aggregate_samples(results_data)
+      const results_data_first = results_data.filter(d => d.sample === 0)
+      // Prepend the initial debt balance
+      // results_data_first = [{ step: 0, month: 0, debt_balance: debt_amount }, ...results_data_first]
+
+      this.has_results = true // This will trigger the results panel to show
+
+      this.$nextTick(() => {
+        const opacity = parseInt(this.project.model.samples) > 1 ? 0.1 : 1;
+
+        // Vis: Economic growth
+        const economic_growth_plot = Plot.plot({
+          grid: true,
+          width: 400,
+          height: 200,
+          x: { 
+            label: this.project.model.interval,
+            domain: [1, model_steps - 1]
+          },
+          y: { label: "Economic Growth" },
+          marks: [
+            Plot.line(results_data.filter(x => x.step < model_steps), {
+              x: "step",
+              y: "economic_growth",
+              z: "sample",
+              opacity
+             }),
+             Plot.line(results_data_aggregated.filter(x => x.step < model_steps), {
+              x: "step",
+              y: "economic_growth",
+              opacity: 1,
+              stroke: "black",
+              strokeDasharray: "4,4"
+             }),
+             Plot.crosshairX(results_data, {x: "step", y: "economic_growth"}),
+             Plot.ruleY([0])
+          ]
+        })
+        const economic_growth_results = document.getElementById('results-economic-growth')
+        if (economic_growth_results) {
+          economic_growth_results.innerHTML = ''
+          economic_growth_results.appendChild(economic_growth_plot)
+        }
+
+        // Vis: Inflation
+        const inflationPlot = Plot.plot({
+          grid: true,
+          width: 400,
+          height: 200,
+          x: { 
+            label: this.project.model.interval,
+            domain: [1, model_steps - 1]
+          },
+          y: { label: "Inflation" },
+          marks: [
+            Plot.line(results_data.filter(x => x.step < model_steps), { 
+              x: "step",
+              y: "inflation",
+              z: "sample",
+              opacity
+            }),
+            Plot.line(results_data_aggregated.filter(x => x.step < model_steps), {
+              x: "step",
+              y: "inflation",
+              opacity: 1,
+              stroke: "black",
+              strokeDasharray: "4,4"
+            }),
+            Plot.crosshairX(results_data, {x: "step", y: "inflation"}),
+            Plot.ruleY([0])
+          ]
+        })
+        const inflationResults = document.getElementById('results-inflation')
+        if (inflationResults) {
+          inflationResults.innerHTML = ''
+          inflationResults.appendChild(inflationPlot)
+        }
+
+        // Vis: Discount rate
+        const discount_ratePlot = Plot.plot({
+          grid: true,
+          width: 400,
+          height: 200,
+          x: { label: this.project.model.interval },
+          y: { label: "Discount Rate" },
+          marks: [
+            Plot.line(results_data, {
+              x: "step",
+              y: "discount_rate",
+              z: "sample",
+              opacity
+            }),
+            Plot.line(results_data_aggregated, {
+              x: "step",
+              y: "discount_rate",
+              opacity: 1,
+              stroke: "black",
+              strokeDasharray: "4,4"
+            }),
+            Plot.crosshairX(results_data, {x: "step", y: "discount_rate"})
+          ]
+        })
+        const discount_rate_results = document.getElementById('results-discount-rate')
+        if (discount_rate_results) {
+          discount_rate_results.innerHTML = ''
+          discount_rate_results.appendChild(discount_ratePlot)
+        }
+
+        // Vis: Debt balance
+        const debt_balance_plot = Plot.plot({
+          grid: true,
+          width: 500,
+          height: 200,
+          marginLeft: 80,
+          x: { 
+            label: this.project.model.interval,
+            domain: [1, model_steps]
+          },
+          y: { 
+            label: "Debt Balance",
+            domain: [0, parseFloat(this.project.property.debt.amount) * 1.05]
+          },
+          marks: [
+            Plot.areaY(
+              results_data_first,
+              {x: "step", y: "debt_balance", fill: "#ddd", opacity: 0.5}
+            ),
+            Plot.line(results_data_first, {
+              x: "step",
+              y: "debt_balance",
+              // z: "sample",
+              opacity: 1
+            }),
+            Plot.text([[1, 1.1 * debt_amount]], {text: [`Initial debt balance: $${(debt_amount).toFixed(2)}`], textAnchor: "start", dx: 16}),
+            Plot.ruleY([0]),
+            // Plot.dot(results_data, { x: "month", y: "debt_balance", z: "sample" })
+          ]
+        })
+        const debt_balance_results = document.getElementById('results-debt-balance')
+        if (debt_balance_results) {
+          debt_balance_results.innerHTML = ''
+          debt_balance_results.appendChild(debt_balance_plot)
+        }
+
+        // Now, create the stacked area chart:
+        const debt_service_plot = Plot.plot({
+          grid: true,
+          width: 500,
+          height: 200,
+          marginLeft: 80,
+          x: { 
+            label: this.project.model.interval,
+            domain: [1, model_steps]
+          },
+          y: { label: "Debt Service" },
+          color: { 
+            // manually set the color scale
+            // scheme: 'greys',
+            // legend: true,
+            // legendPosition: 'bottom',
+          },
+          marks: [
+            Plot.line(results_data_first, {
+              x: "step",
+              y: "debt_paid",
+              opacity: 1,
+              stroke: "black",
+              // strokeDasharray: "4,4"
+            }),
+            Plot.areaY(
+              results_data_first,
+              {x: "step", y: "debt_paid", fill: "#ddd", opacity: 0.5}
+            ),
+            Plot.line(results_data_first, {
+              x: "step",
+              y: "debt_interest_paid",
+              opacity: 0.5,
+              stroke: "black",
+              strokeDasharray: "2,2",
+              strokeWidth: 1
+            }),
+            // Plot.areaY(
+            //   results_data_first,
+            //   {x: "step", y: "debt_interest_paid", fill: "#ccc", opacity: 0.5}
+            // ),
+            Plot.text([[1, debt_service_per_model_interval + 0.1 * debt_service_per_model_interval]], {text: [`${this.project.model.interval}ly debt service: $${(debt_service_per_model_interval).toFixed(2)} ↴ `], textAnchor: "start", dx: 16}),
+            Plot.text([[1, results_data_first[0]['debt_interest_paid'] + results_data_first[0]['debt_principal_paid'] / 2]], {text: ["· Principal"], textAnchor: "start", dx: 16}),
+            Plot.text([[1, results_data_first[0]['debt_interest_paid'] / 2]], {text: ["· Interest"], textAnchor: "start", dx: 16}),
+            Plot.ruleY([0]),
+            Plot.crosshairX(results_data_first, {x: "step", y: "debt_interest_paid"}),
+          ],
+        });
+        const debt_service_results = document.getElementById('results-debt-service')
+        if (debt_service_results) {
+          debt_service_results.innerHTML = ''
+          debt_service_results.appendChild(debt_service_plot)
+        }
+
+        const d = Math.max(effective_gross_income_max, expenses_max, debt_service_per_model_interval) * 1.1
+
+        const iePlot = Plot.plot({
+          grid: true,
+          width: 1100,
+          marginLeft: 80,
+          height: 300,
+          x: { 
+            label: this.project.model.interval
+          },
+          y: { 
+            label: "Income/Expenses",
+            domain: [-d, d]
+          },
+          // legend
+          marks: [
+            // Plot.rectY(results_data_first, {x: "month", y: "btcf"}),
+            // Plot.dot(results_data, {x: "month", y: "btcf", opacity: 0.1, r: 2}),
+            // Plot.boxY(results_data, {x: "month", y: "effective_gross_income_per_model_interval", stroke: "green", title: "Effective Gross Income"}),
+            Plot.boxY(results_data, {x: "step", y: "effective_gross_income_per_model_interval", title: "Effective Gross Income", r: 0}),
+            Plot.boxY(results_data, {x: "step", y: "expenses_per_model_interval", title: "Effective Gross Income", r: 0}),
+            // Plot.line(results_data_aggregated, {x: "step", y: "net_operating_income", stroke: "black", opacity: 1, strokeDasharray: "4,4"}),
+            // Plot.ruleY(results_data_first.map(x => ({step: x.step, debt_paid: -x.debt_paid})), {x: "step", y: "debt_paid", stroke: "black", strokeDasharray: "2,2", title: "Monthly Debt Service"}),
+            // Plot.areaY(results_data_first.map(x => ({step: x.step, debt_paid: -x.debt_paid})), {x: "step", y: "debt_paid", fill: "#ddd", opacity: 0.5}),
+            Plot.crosshairX(results_data, {x: "step", y: "effective_gross_income_per_model_interval"}),
+            Plot.crosshairX(results_data, {x: "step", y: "expenses_per_model_interval"}),
+            Plot.text([[1, d * 0.8]], {text: ["▲ Income "], textAnchor: "start", dx: 16}),
+            Plot.text([[1, -d * 0.8]], {text: ["▼ Expenses "], textAnchor: "start", dx: 16}),
+            // Plot.boxY(results_data, {x: "month", y: "effective_gross_income_per_model_interval", color: "green", opacity: 0.5, title: "Effective Gross Income"}),
+            // Plot.boxY(results_data, {x: "month", y: "expenses_per_model_interval", color: "red", opacity: 0.5, title: "Expenses"}),
+            // add red scatter expenses
+            Plot.ruleY([0], {opacity: 0.5}),
+          ]
+        })
+        const ieResults = document.getElementById('results-ie')
+        if (ieResults) {
+          ieResults.innerHTML = ''
+          ieResults.appendChild(iePlot)
+        }
+
+
+  
+        // Circular incomes plot
+        const circularIncomesPlot = Plot.plot({
+          aspectRatio: 1,
+          // inset: 10,
+          width: 300,
+          height: 300,
+          grid: false,
+          x: { 
+            domain: [-d * 1.1, d * 1.1],
+            label: 'Incomes',
+            ticks: [0, Math.round(d / 1000) * 1000],
+            // axis: null,
+          },
+          y: { 
+            domain: [-d * 1.1, d * 1.1],
+            axis: null,
+          },
+          marks: [
+            Plot.line(
+              results_data.map(d => ({
+                x: Math.sin((d.month - 0) * 2 * Math.PI / 12) * d.effective_gross_income_per_model_interval,
+                y: Math.cos((d.month - 0) * 2 * Math.PI / 12) * d.effective_gross_income_per_model_interval,
+                z: d.sample,
+                m: d.month,
+                i: d.effective_gross_income_per_model_interval
+              })),
+              {x: 'x', y: 'y', z: 'z', marker: true, opacity: opacity == 1 ? 1 : opacity / 5}
+            )
+          ]
+          .concat(Array(12).fill(0).map((v, i) => Plot.line([
+            {
+              x: 0,
+              y: 0,
+            },
+            {
+              x: Math.sin((i + 1) * 2 * Math.PI / 12) * d * 1.1,
+              y: Math.cos((i + 1) * 2 * Math.PI / 12) * d * 1.1,
+            },
+          ], {x: 'x', y:'y', stroke: "black", opacity: 0.05})))
+          .concat(Array(12).fill(0).map((v, i) => Plot.text([
+            {
+              x: Math.sin((i + 1) * 2 * Math.PI / 12) * d * 0.98,
+              y: Math.cos((i + 1) * 2 * Math.PI / 12) * d * 0.98,
+            },
+          ], {x: 'x', y: 'y', text: [i == 11 ? 'Month: ' + (i + 1) : i + 1], textAnchor: "middle", dy: 0})))
+        })
+        const circularIncomesResults = document.getElementById('results-incomes-circular')
+        if (circularIncomesResults) {
+          circularIncomesResults.innerHTML = ''
+          circularIncomesResults.appendChild(circularIncomesPlot)
+        }
+
+        const circularExpensesPlot = Plot.plot({
+          aspectRatio: 1,
+          // inset: 10,
+          width: 300,
+          height: 300,
+          grid: false,
+          x: { 
+            domain: [-d * 1.1, d * 1.1],
+            label: 'Expenses',
+            ticks: [0, Math.round(d / 1000) * 1000],
+            // axis: null,
+          },
+          y: { 
+            domain: [-d * 1.1, d * 1.1],
+            axis: null,
+          },
+          marks: [
+            Plot.line(
+              results_data.map(d => ({
+                x: Math.sin((d.month - 0) * 2 * Math.PI / 12) * -d.expenses_per_model_interval,
+                y: Math.cos((d.month - 0) * 2 * Math.PI / 12) * -d.expenses_per_model_interval,
+                z: d.sample,
+                m: d.month,
+                i: d.expenses_per_model_interval
+              })),
+              {x: 'x', y: 'y', z: 'z', marker: true, opacity: opacity == 1 ? 1 : opacity / 5}
+            )
+          ]
+          .concat(Array(12).fill(0).map((v, i) => Plot.line([
+            {
+              x: 0,
+              y: 0,
+            },
+            {
+              x: Math.sin((i + 1) * 2 * Math.PI / 12) * d * 1.1,
+              y: Math.cos((i + 1) * 2 * Math.PI / 12) * d * 1.1,
+            },
+          ], {x: 'x', y:'y', stroke: "black", opacity: 0.05})))
+          .concat(Array(12).fill(0).map((v, i) => Plot.text([
+            {
+              x: Math.sin((i + 1) * 2 * Math.PI / 12) * d * 0.98,
+              y: Math.cos((i + 1) * 2 * Math.PI / 12) * d * 0.98,
+            },
+          ], {x: 'x', y: 'y', text: [i == 11 ? 'Month: ' + (i + 1) : i + 1], textAnchor: "middle", dy: 0})))
+        })
+        const circularExpensesResults = document.getElementById('results-expenses-circular')
+        if (circularExpensesResults) {
+          circularExpensesResults.innerHTML = ''
+          circularExpensesResults.appendChild(circularExpensesPlot)
+        }
+
+        const circularDebtPlot = Plot.plot({
+          aspectRatio: 1,
+          // inset: 10,
+          width: 300,
+          height: 300,
+          grid: false,
+          x: { 
+            label: 'Debt Service',
+            domain: [-d * 1.1, d * 1.1],
+            ticks: [0, Math.round(d / 1000) * 1000],
+          },
+          y: { 
+            domain: [-d * 1.1, d * 1.1],
+            axis: null,
+          },
+          marks: [
+            Plot.line(
+              results_data.map(d => ({
+                x: Math.sin((d.month - 0) * 2 * Math.PI / 12) * d.debt_paid,
+                y: Math.cos((d.month - 0) * 2 * Math.PI / 12) * d.debt_paid,
+                z: d.sample,
+                m: d.month,
+                i: d.debt_paid
+              })),
+              {x: 'x', y: 'y', z: 'z', marker: true, opacity: opacity == 1 ? 1 : opacity / 5}
+            )
+          ]
+          .concat(Array(12).fill(0).map((v, i) => Plot.line([
+            {
+              x: 0,
+              y: 0,
+            },
+            {
+              x: Math.sin((i + 1) * 2 * Math.PI / 12) * d * 1.1,
+              y: Math.cos((i + 1) * 2 * Math.PI / 12) * d * 1.1,
+            },
+          ], {x: 'x', y:'y', stroke: "black", opacity: 0.05})))
+          .concat(Array(12).fill(0).map((v, i) => Plot.text([
+            {
+              x: Math.sin((i + 1) * 2 * Math.PI / 12) * d * 0.98,
+              y: Math.cos((i + 1) * 2 * Math.PI / 12) * d * 0.98,
+            },
+          ], {x: 'x', y: 'y', text: [i == 11 ? 'Month: ' + (i + 1) : i + 1], textAnchor: "middle", dy: 0})))
+        })
+        const circularDebtResults = document.getElementById('results-debt-circular')
+        if (circularDebtResults) {
+          circularDebtResults.innerHTML = ''
+          circularDebtResults.appendChild(circularDebtPlot)
+        }
+
+        const btcfPlot = Plot.plot({
+          grid: true,
+          width: 1100,
+          marginLeft: 80,
+          height: 300,
+          x: { label: this.project.model.interval },
+          y: { label: "BTCF" },
+          // color: { scheme: "RdYlGn" },
+          marks: [
+            // Plot.rectY(results_data_first, {x: "month", y: "btcf"}),
+            // Plot.dot(results_data, {x: "month", y: "btcf", opacity: 0.1, r: 2}),
+            Plot.boxY(results_data, {x: "step", y: "atcf", stroke: "black", title: "After Tax Cash Flow", opacity: 0.1, r: 0}),
+            // Plot.boxY(results_data, {x: "month", y: "btcf", stroke: "btcf"}),
+            Plot.boxY(results_data, {x: "step", y: "btcf", r: 0}),
+            // Plot.dot(results_data, {x: "month", y: "effective_gross_income_per_model_interval", opacity, r: 0.5, stroke: "green", title: "Effective Gross Income"}),
+            // Plot.dot(results_data, {x: "month", y: "expenses_per_model_interval", opacity, r: 0.5, stroke: "red", title: "Effective Gross Income"}),
+            Plot.crosshairX(results_data, {x: "step", y: "btcf"}),
+            // Plot.boxY(results_data, {x: "month", y: "effective_gross_income_per_model_interval", color: "green", opacity: 0.5, title: "Effective Gross Income"}),
+            // Plot.boxY(results_data, {x: "month", y: "expenses_per_model_interval", color: "red", opacity: 0.5, title: "Expenses"}),
+            // add red scatter expenses
+            Plot.ruleY([0], {opacity: 0.5}),
+          ]
+        })
+        const btcfResults = document.getElementById('results-btcf')
+        if (btcfResults) {
+          btcfResults.innerHTML = ''
+          btcfResults.appendChild(btcfPlot)
+        }
+
+        const atcfPlot = Plot.plot({
+          grid: true,
+          width: 1100,
+          marginLeft: 80,
+          height: 300,
+          x: { label: this.project.model.interval },
+          y: { label: "ATCF" },
+          // color: { scheme: "RdYlGn" },
+          marks: [
+
+            Plot.boxY(results_data, {x: "step", y: "btcf", stroke: "black", title: "Before Tax Cash Flow", opacity: 0.1, r: 0}),
+            // Plot.boxY(results_data, {x: "month", y: "atcf", stroke: "atcf"}),
+            Plot.boxY(results_data, {x: "step", y: "atcf", r: 0}),
+            Plot.crosshairX(results_data, {x: "step", y: "atcf"}),
+            Plot.ruleY([0], {opacity: 0.5}),
+          ]
+        })
+        const atcfResults = document.getElementById('results-atcf')
+        if (atcfResults) {
+          atcfResults.innerHTML = ''
+          atcfResults.appendChild(atcfPlot)
+        }
+
+        // Plot.rectY({length: 10000}, Plot.binX({y: "count"}, {x: d3.randomNormal()})).plot()
+
+        let minIrr = Math.min(...btirr_samples, ...atirr_samples)
+        let maxIrr = Math.max(...btirr_samples, ...atirr_samples)
+
+        const btirrPlot = Plot.plot({
+          width: 500,
+          height: 300,
+          x: { label: "BTIRR, %" },
+          y: { label: "_", grid: true, axis: false },
+          marks: [
+            Plot.rectY(
+              btirr_samples.map((d, i) => ({sample: i, irr: d})), 
+              Plot.binX({y: "count"}, {x: 'irr', thresholds: 30, opacity: 0.5})
+            ),
+            Plot.ruleX([mean(btirr_samples)], {stroke: "black", strokeDasharray: "2,2"}),
+            Plot.ruleY([0], {opacity: 0.5}),
+          ]
+        })
+        const btirrResults = document.getElementById('results-btirr')
+        if (btirrResults) {
+          btirrResults.innerHTML = ''
+          btirrResults.appendChild(btirrPlot)
+        }
+
+        const atirrPlot = Plot.plot({
+          width: 500,
+          height: 300,
+          x: { label: "ATIRR, %" },
+          y: { label: "_", grid: true, axis: false },
+          marks: [
+            Plot.rectY(
+              atirr_samples.map((d, i) => ({sample: i, irr: d})), 
+              Plot.binX({y: "count"}, {x: 'irr', thresholds: 30, opacity: 0.5})
+            ),
+            Plot.ruleX([mean(atirr_samples)], {stroke: "black", strokeDasharray: "2,2"}),
+            Plot.ruleY([0], {opacity: 0.5}),
+          ]
+        })
+        const atirrResults = document.getElementById('results-atirr')
+        if (atirrResults) {
+          atirrResults.innerHTML = ''
+          atirrResults.appendChild(atirrPlot)
+        }
+
+
+        const format = {}
+        Object.keys(results_data_aggregated[0]).forEach(k => {
+          // console.log('Data aggregated:', k)
+          if (k == 'month') {
+            format[k] = (d, i) => d % 12 === 0 
+              ? html`<div style="
+                color: black; 
+                font-size: 12px; 
+                float: right; 
+                box-sizing: border-box; 
+                overflow: visible; 
+                display: flex; 
+                justify-content: end;
+                ">Year ${d / 12}</div>` 
+              : html`<div style="
+                color: grey; 
+                font-size: 10px;  
+                float: right; 
+                box-sizing: border-box; 
+                overflow: visible; 
+                display: flex; 
+                justify-content: end;
+                ">${d}</div>`
+          }
+          else if (k.includes('std')) {
+            format[k] = (d, i) => html`<div style="
+              color: grey;
+              font-size: 10px;
+              float: left;
+              box-sizing: border-box;
+              overflow: visible;
+              display: flex;
+              justify-content: end;
+              font-family: monospace;
+            ">±${d.toFixed(2)}</div>`
+          } else {
+            format[k] = (d, i) => html`<div style="
+              color: black;
+              font-size: 12px;
+              float: right;
+              box-sizing: border-box;
+              overflow: visible;
+              display: flex;
+              justify-content: end;
+              font-family: monospace;
+            ">${d.toFixed(2)}</div>`
+          }
+        })  
+        // ;['economic_growth', 'inflation', 'discount_rate', 'debt_paid', 'debt_interest_paid', 'debt_principal_paid', 'debt_balance', 'effective_gross_income_per_model_interval', 'potential_income_per_model_interval', 'expenses_per_model_interval', 'net_operating_income', 'btcf', 'taxes', 'atcf'].forEach(key => {
+        //   format[key] = (d, i) => results_data_aggregated[i][key + '_std'] > 0.005
+        //       ? html`${d.toFixed(2)}<span style="color:red; width: 50px; display: inline-block"> ± ${results_data_aggregated[i][key + '_std'].toFixed(2)} </span>`
+        //       : d.toFixed(2)
+        // })
+
+        console.log(format)
+
+        const columns = [
+          'month',
+          'debt_interest_paid',
+          'debt_principal_paid',
+          'debt_balance',
+          'effective_gross_income_per_model_interval',
+          'effective_gross_income_per_model_interval_std',
+          'expenses_per_model_interval',
+          'expenses_per_model_interval_std',
+          'net_operating_income',
+          'net_operating_income_std',
+          'btcf',
+          'btcf_std',
+          'taxes',
+          'taxes_std',
+          'atcf',
+          'atcf_std',
+        ]
+
+        // iterate over columns and check _std values in results_data_aggregated and if all 0 remove column
+        const header = {
+            month: 'Month',
+            debt_interest_paid: 'Interest Paid',
+            debt_principal_paid: 'Principal Paid',
+            debt_balance: 'Debt Balance',
+            effective_gross_income_per_model_interval: 'Effective Gross Income',
+            // effective_gross_income_per_model_interval_std: html`<div style="color: grey; font-weight: 300; float: left; box-sizing: border-box; overflow: visible; display: flex; justify-content: end;">Std</div>`,
+            expenses_per_model_interval: 'Expenses',
+            // expenses_per_model_interval_std:  html`<div style="color: grey; font-weight: 300; float: left; box-sizing: border-box; overflow: visible; display: flex; justify-content: end;">Std</div>`,
+            net_operating_income: 'NOI',
+            // net_operating_income_std: html`<div style="color: grey; font-weight: 300; float: left; box-sizing: border-box; overflow: visible; display: flex; justify-content: end;">Std</div>`,
+            btcf: 'BTCF',
+            // btcf_std: html`<div style="color: grey; font-weight: 300; float: left; box-sizing: border-box; overflow: visible; display: flex; justify-content: end;">Std</div>`,
+            taxes: 'Income Taxes',
+            atcf: 'ATCF',
+            // atcf_std: html`<div style="color: grey; font-weight: 300; float: left; box-sizing: border-box; overflow: visible; display: flex; justify-content: end;">Std</div>`,
+          } 
+
+        const columns_new = []
+        columns.forEach(col => {
+          if (col.includes('_std')) {
+            const std_values = results_data_aggregated.map(d => d[col])
+            if (!std_values.every(v => v < 0.005)) {
+              columns_new.push(col)
+              header[col] = html`<div style="color: grey; font-weight: 300; float: left; box-sizing: border-box; overflow: visible; display: flex; justify-content: end;">Std</div>`
+            }
+          } else {
+            columns_new.push(col)
+          }
+        })
+
+
+        const table = Inputs.table(results_data_aggregated, {
+          rows: 1000,
+          select: false,
+          // layout: 'fixed',
+          columns: columns_new,
+          header: header,
+          format: format
+          // {
+          //   debt_paid: (d, i) => '$' + d.toFixed(2) + ' ± ' + results_data_aggregated[i]['debt_paid_std'].toFixed(2),
+          //   debt_interest_paid: (d, i) => '$' + d.toFixed(2) + ' ± ' + results_data_aggregated[i]['debt_interest_paid_std'].toFixed(2),
+          //   debt_principal_paid: (d, i) => '$' + d.toFixed(2) + ' ± ' + results_data_aggregated[i]['debt_principal_paid_std'].toFixed(2),
+          //   debt_balance: (d, i) => '$' + d.toFixed(2) + ' ± ' + results_data_aggregated[i]['debt_balance_std'].toFixed(2),
+          //   effective_gross_income_per_model_interval: (d, i) => '$' + d.toFixed(2) + ' ± ' + results_data_aggregated[i]['effective_gross_income_per_model_interval_std'].toFixed(2),
+          //   expenses_per_model_interval: (d, i) => '$' + d.toFixed(2) + ' ± ' + results_data_aggregated[i]['expenses_per_model_interval_std'].toFixed(2),
+          // }
+        });
+
+        console.log('Table:', results_data)
+
+        // Display the slider on the page.
+
+        // Insert the plot into the div with id="results"
+        const resultsDiv = document.getElementById("results");
+        if (resultsDiv) {
+          resultsDiv.innerHTML = ""; // Clear any previous content
+          resultsDiv.appendChild(table)
+        } else {
+          console.error('Element with id "results" not found.');
+        }
+
+
+      // el.style.display = 'block'
+        const el = document.getElementById('results-container')
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+        this.shuffle_logo()
+      })
+    },
+
+    copyLinkToClipboard() {
+      // Compress project data to URL
+      console.log('Project:', JSON.stringify(this.project, null, 2))
+      const compressed_data = this.compressData(this.project);
+
+      // Create URL with compressed data as parameter
+      const url = new URL(window.location.href);
+      url.searchParams.set('data', compressed_data);
+
+      // Copy to clipboard
+      navigator.clipboard.writeText(url.toString())
+        .then(() => {
+          // Show success notification (you might want to add a toast/snackbar component)
+          // alert('Link copied to clipboard!');
+          this.showAlert = true
+        })
+        .catch(err => {
+          console.error('Failed to copy link: ', err);
+          // alert('Failed to copy link');
+        });
+    },
+
+    // Load data from URL if present
+    load_project() {
+      const url_params = new URLSearchParams(window.location.search)
+      const compressed_data = url_params.get('data')
+      if (compressed_data) {
+        try {
+          const decoded_project = this.decompress_data(compressed_data)
+          this.project = this.merge_with_defaults(decoded_project)
+          // Clear URL after loading
+          const url = new URL(window.location.href)
+          url.searchParams.delete('data')
+          window.history.replaceState({}, document.title, url.toString())
+          // Close all active panels
+          this.active_panels = []
+          this.run()
+        } catch (error) {
+          console.error('Failed to load project data from URL:', error);
+          alert('Invalid project data in URL');
+        }
+      } else {
+        // Load default
+        this.active_panels = []
+        this.project = JSON.parse(JSON.stringify(projects.example_1))
+        // this.project = JSON.parse(JSON.stringify(projects.default_project))
+      }
+    },
+
+    // Compress project data to a URL-friendly string
+    compressData(projectData) {
+      // Step 1: Define a mapping schema from long property names to short codes
+      const schema = {
+        // Model
+        'model': 'm',
+        'samples': 's',
+        'economic_growth': 'eg',
+        'inflation': 'if',
+        'discount_rate': 'dr',
+        'initial': 'i',
+        'mean': 'mn',
+        'std': 'sd',
+        'df': 'd',
+        'interval': 'iv',
+        
+        // Property
+        'property': 'p',
+        'name': 'n',
+        'holdingPeriod': 'hp',
+        'debt': 'dt',
+        'amount': 'a',
+        'term': 't',
+        'rate': 'r',
+        'purchase': 'pc',
+        'price': 'pr',
+        'costs': 'c',
+        'sale': 'sl',
+        
+        // Taxes
+        'taxes': 'tx',
+        'depreciation': 'dp',
+        'period': 'pd',
+        'marginal_tax_rate': 'mtr',
+        'capital_gains_tax_tate': 'cgr',
+        'recapture_tax_rate': 'rtr',
+        
+        // Income & Expenses
+        'income': 'inc',
+        'expenses': 'exp',
+        'items': 'it',
+        'id': 'id',
+        'description': 'ds',
+        'active': 'ac',
+        'min': 'mi',
+        'max': 'mx',
+        'type': 'ty',
+        'amount_growth': 'ag',
+        'target_values': 'av',
+        'growth_values': 'gv',
+        'units': 'un',
+        'occupancy': 'oc',
+        'occupancy_growth': 'og',
+        'frequency': 'fr',
+        'target': 'tg',
+        'update': 'up',
+        'factor': 'fc'
+      };
+
+      // Step 2: Convert the project using schema
+      const compressed = this.convertUsingSchema(projectData, schema);
+
+      // Step 3: Stringify and compress
+      const jsonString = JSON.stringify(compressed);
+      return LZString.compressToEncodedURIComponent(jsonString);
+    },
+
+    // Convert object keys using schema
+    convertUsingSchema(obj, schema) {
+      if (obj === null || typeof obj !== 'object') {
+        return obj;
+      }
+      
+      if (Array.isArray(obj)) {
+        return obj.map(item => this.convertUsingSchema(item, schema));
+      }
+      
+      const result = {};
+      for (const [key, value] of Object.entries(obj)) {
+        const shortKey = schema[key] || key;
+        result[shortKey] = this.convertUsingSchema(value, schema);
+      }
+      
+      return result;
+    },
+    
+    // Decompress URL data to project object
+    decompress_data(compressed_data) {
+      // Step 1: Define reverse mapping schema
+      const reverseSchema = {
+        // Model
+        'm': 'model',
+        's': 'samples',
+        'eg': 'economic_growth',
+        'if': 'inflation',
+        'dr': 'discount_rate',
+        'i': 'initial',
+        'mn': 'mean',
+        'sd': 'std',
+        'd': 'df',
+        'iv': 'interval',
+        
+        // Property
+        'p': 'property',
+        'n': 'name',
+        'hp': 'holdingPeriod',
+        'dt': 'debt',
+        'a': 'amount',
+        't': 'term',
+        'r': 'rate',
+        'pc': 'purchase',
+        'pr': 'price',
+        'c': 'costs',
+        'sl': 'sale',
+        
+        // Taxes
+        'tx': 'taxes',
+        'dp': 'depreciation',
+        'pd': 'period',
+        'mtr': 'marginal_tax_rate',
+        'cgr': 'capital_gains_tax_tate',
+        'rtr': 'recapture_tax_rate',
+        
+        // Income & Expenses
+        'inc': 'income',
+        'exp': 'expenses',
+        'it': 'items',
+        'id': 'id',
+        'ds': 'description',
+        'ac': 'active',
+        'mi': 'min',
+        'mx': 'max',
+        'ty': 'type',
+        'ag': 'amount_growth',
+        'av': 'target_values',
+        'gv': 'growth_values',
+        'un': 'units',
+        'oc': 'occupancy',
+        'og': 'occupancy_growth',
+        'fr': 'frequency',
+        'tg': 'target',
+        'up': 'update',
+        'fc': 'factor'
+      };
+      
+      // Step 2: Decompress and parse JSON
+      const jsonString = LZString.decompressFromEncodedURIComponent(compressed_data);
+      const compressed = JSON.parse(jsonString);
+      
+      // Step 3: Convert back using reverse schema
+      return this.convertUsingSchema(compressed, reverseSchema);
+    },
+
+    // Deep merge objects to ensure defaults are maintained
+    merge_with_defaults(project_loaded) {
+      // Create a deep merged object from default project and loaded data
+      const project_default = JSON.parse(JSON.stringify(projects.default_project))
+      const project_merged = this.deep_merge(project_default, project_loaded)
+      // Iterate over each item in the income and expenses lists and merge with default_income and default_expense
+      project_merged.income.items = project_merged.income.items
+        .map(item => this.deep_merge(
+          JSON.parse(JSON.stringify(projects.default_income)),
+          item
+        ))
+      project_merged.expenses.items = project_merged.expenses.items
+        .map(item => this.deep_merge(
+          JSON.parse(JSON.stringify(projects.default_expense)),
+          item
+        ))
+      return project_merged
+    },
+
+    // Helper function for deep merging objects
+    deep_merge(target, source) {
+      if (!source) return target;
+
+      const output = {...target};
+
+      if (this.isObject(target) && this.isObject(source)) {
+        Object.keys(source).forEach(key => {
+          if (this.isObject(source[key])) {
+            if (!(key in target)) {
+              Object.assign(output, { [key]: source[key] });
+            } else {
+              output[key] = this.deep_merge(target[key], source[key]);
+            }
+          } else {
+            Object.assign(output, { [key]: source[key] });
+          }
+        });
+      }
+      
+      return output;
+    },
+    
+    // Helper to check if value is an object
+    isObject(item) {
+      return (item && typeof item === 'object' && !Array.isArray(item));
+    },
+
+    removeRow(listName, id) {
+      // Remove the item with the matching id from the specified list (income or expenses)
+      this.project[listName].items = this.project[listName].items.filter(item => item.id !== id)
+    },
+
+    cloneRow(listName, id) {
+      // Find the item to clone in the specified list
+      const original = this.project[listName].items.find(item => item.id === id)
+      if (original) {
+        // Create a deep copy of the original item
+        const clonedItem = JSON.parse(JSON.stringify(original))
+        const currentIds = this.project[listName].items.map(i => i.id)
+        const newId = Math.max(...currentIds) + 1
+        clonedItem.id = newId
+        this.project[listName].items.push(clonedItem)
+      }
+    }
+  }, // *run()
+  beforeMount() {
+    this.load_project()
+  },
+  mounted() {
+    this.shuffle_logo()
+    //disable loader
+    const loader = document.getElementById('loader')
+    if (loader) {
+      loader.style.display = 'none'
+    }
+  }
+}
+</script>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="https://unpkg.com/@statsim/mcdcf@latest/docs/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Vuetify 3</title>
+    <style>
+      body {
+        /* font-family: 'Roboto', sans-serif; */
+        font-family: monospace;
+      }
+      .main {
+        max-width: 900px;
+        width: 100%;
+        padding: 16px 0;
+        margin-right: auto;
+        margin-left: auto;
+      }
+      .main h1 {
+        font-weight: 800;
+        font-size: 36px;
+        margin-top: 32px;
+        margin-bottom: 16px;
+        line-height: 1.2;
+      }
+      .main h2 {
+        font-size: 24px;
+        margin-top: 32px;
+        margin-bottom: 5px;
+        line-height: 1.2;
+      }
+      .main h2, .main h3, .main h4 {
+        margin-top: 24px;
+      }
+      .main p {
+        font-size: 14px;
+        line-height: 1.5;
+        margin-top: 10px;
+      }
+      /* blinking */
+      @keyframes blink {
+        0% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+      #loader {
+        height: 325px;
+        /* center align */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        animation: blink 1s infinite;
+      }
+    </style>
+    <script type="module" crossorigin src="https://unpkg.com/@statsim/mcdcf@latest/docs/assets/index-CKboP2Lv.js"></script>
+    <link rel="modulepreload" crossorigin href="https://unpkg.com/@statsim/mcdcf@latest/docs/assets/vendor-CFZRvLEn.js">
+    <link rel="stylesheet" crossorigin href="https://unpkg.com/@statsim/mcdcf@latest/docs/assets/vendor-D5HxK9oZ.css">
+    <link rel="stylesheet" crossorigin href="https://unpkg.com/@statsim/mcdcf@latest/docs/assets/index-xtoYDNDk.css">
+  </head>
+  <body>
+    <div id="app"></div>
+
+    <div class="main">
+    <div id="loader">
+      <p>Loading...</p>
+      <!-- blinking text -->
+
+    </div>
+  <h1>Monte Carlo Discounted Cash Flow <span style="font-weight: 200">(MCDCF)</span></h1>
+  
+  <h2>Overview</h2>
+  <p>
+    The Monte Carlo Discounted Cash Flow tool is designed for property investors who want to forecast the potential financial performance of their investments. This application helps you evaluate how various economic and property-specific factors may influence your cash flow over time. By simulating multiple scenarios, it provides an informed projection of key metrics such as cash flows and internal rate of return (IRR), empowering you to make better investment decisions.
+  </p>
+  
+  <h2>The Problem It Solves</h2>
+  <p>
+    Making a real estate investment involves uncertainty. Market conditions, economic factors, and property-specific costs can change over time, and predicting these changes can be challenging. Many investors struggle to understand how variables like inflation, economic growth, and interest rates might affect the performance of their investments.
+  </p>
+  <p>
+    This application solves the problem by using Monte Carlo simulations to model a wide range of possible future scenarios. It provides you with a probabilistic forecast of your investment's performance, showing potential outcomes rather than a single deterministic forecast. With this tool, you can better gauge the risks and rewards associated with a property, helping you to plan and strategize more effectively.
+  </p>
+  
+  <h2>User Inputs</h2>
+  <h3>Economic and Model Parameters</h3>
+  <p>
+    The tool begins by asking for general economic parameters that affect the entire investment environment:
+  </p>
+  <ul>
+    <li><strong>Economic Growth:</strong> Specify the initial growth rate of the economy and set parameters for how it might change over time.</li>
+    <li><strong>Inflation:</strong> Define the starting rate of inflation and provide estimates for its progression.</li>
+    <li><strong>Discount Rate:</strong> Input the rate used to discount future cash flows back to their present value.</li>
+    <li><strong>Number of Simulation Samples:</strong> Choose how many scenarios you want to generate for a comprehensive analysis.</li>
+  </ul>
+  
+  <h3>Property Details</h3>
+  <p>
+    Next, you provide specific details about the property itself. These inputs are essential for calculating the financial dynamics of your investment:
+  </p>
+  <ul>
+    <li><strong>Property Name and Holding Period:</strong> Identify the property and set the duration of your investment.</li>
+    <li><strong>Debt Structure:</strong> Enter the debt amount, term, and interest rate to calculate the monthly debt service.</li>
+    <li><strong>Purchase and Sale Information:</strong> Input the purchase price, associated costs, sale price, and sale expenses to evaluate overall profitability.</li>
+  </ul>
+  
+  <h3>Income and Expense Items</h3>
+  <p>
+    The tool allows you to add multiple income and expense items, providing a detailed look at the property’s operational performance:
+  </p>
+  <h4>Income Items</h4>
+  <p>
+    For each income item (such as parking fees or rental income), you can specify:
+  </p>
+  <ul>
+    <li><strong>Description:</strong> A brief title or name for the income source.</li>
+    <li><strong>Amount:</strong> The base revenue generated per period.</li>
+    <li><strong>Units and Occupancy:</strong> The number of revenue-generating units and the percentage of those units that are occupied.</li>
+    <li><strong>Growth Settings:</strong> Choose whether the income grows at a custom rate or follows inflation, and define the frequency of updates.</li>
+    <li><strong>Active Status:</strong> Toggle whether the income stream is currently active, affecting its visibility and weight in the simulation.</li>
+  </ul>
+  
+  <h4>Expense Items</h4>
+  <p>
+    Similarly, for expense items (such as insurance or management fees), you input:
+  </p>
+  <ul>
+    <li><strong>Description:</strong> A brief description of the expense.</li>
+    <li><strong>Amount:</strong> The cost per period, which can be an absolute value or a percentage relative to a target income source.</li>
+    <li><strong>Type and Target:</strong> Specify whether the expense is an absolute cost or relative to income, and if relative, define the target (for example, Gross Income).</li>
+    <li><strong>Growth Settings:</strong> Like income, set the growth type and frequency for expense changes over time.</li>
+    <li><strong>Active Status:</strong> Enable or disable the expense, which visually adjusts the row opacity in the data table.</li>
+  </ul>
+  
+  <h2>Outputs and Reporting</h2>
+  <h3>Simulated Financial Projections</h3>
+  <p>
+    Once you have provided all inputs, the tool runs a series of Monte Carlo simulations. It calculates monthly values for:
+  </p>
+  <ul>
+    <li><strong>Effective Gross Income and Operating Expenses:</strong> Combined to determine the net operating income (NOI).</li>
+    <li><strong>Debt Service:</strong> Tracking both principal and interest components of your debt repayments.</li>
+    <li><strong>Cash Flows:</strong> Both before-tax (BTCF) and after-tax (ATCF) cash flows over the entire holding period.</li>
+    <li><strong>Internal Rate of Return (IRR):</strong> Annualized returns that reflect the investment’s performance under various scenarios.</li>
+  </ul>
+  
+  <h3>Visual Reports and Charts</h3>
+  <p>
+    The application presents its outputs in a clear, visually engaging format:
+  </p>
+  <ul>
+    <li><strong>Line Charts:</strong> Display the evolution of economic growth, inflation, and discount rates over time.</li>
+    <li><strong>Debt Service Graphs:</strong> Show the gradual decrease in debt balance and breakdown of monthly payments.</li>
+    <li><strong>Box Plots:</strong> Compare the distributions of before-tax and after-tax cash flows, highlighting potential variability.</li>
+    <li><strong>Histogram Charts:</strong> Illustrate the spread of IRR outcomes across all simulation samples.</li>
+  </ul>
+  
+  <h3>Data Tables and Interactivity</h3>
+  <p>
+    In addition to charts, the tool provides detailed data tables that list the simulation results by month. These tables are interactive:
+  </p>
+  <ul>
+    <li><strong>Inline Editing:</strong> Easily adjust income and expense values directly within the table.</li>
+    <li><strong>Row Actions:</strong> Clone or delete specific income/expense items, with inactive items visibly dimmed to indicate their status.</li>
+    <li><strong>Responsive Design:</strong> The interface adapts to different screen sizes, ensuring smooth operation on desktops and mobile devices.</li>
+  </ul>
+  
+  <h2>Sharing and Collaboration</h2>
+  <h3>Share Your Project via URL</h3>
+  <p>
+    One of the standout features of the application is the ability to share your entire project configuration via a unique URL. When you click the "Copy Link" button, the tool compresses all your input data into a URL parameter. Recipients who open the URL will see your saved settings and simulation results without any additional setup.
+  </p>
+  
+  <h3>User Experience and Benefits</h3>
+  <p>
+    This application is designed to empower investors with a deep understanding of their property investments. By combining intuitive input forms, interactive data tables, and dynamic visual reports, the tool helps you:
+  </p>
+  <ul>
+    <li>Visualize how external economic factors can influence your investment outcomes.</li>
+    <li>Assess cash flow stability and risk through multiple simulated scenarios.</li>
+    <li>Quickly adjust assumptions and see real-time impacts on forecasted returns.</li>
+    <li>Collaborate and share your investment model easily with peers or advisors.</li>
+  </ul>
+  
+  <h2>Conclusion</h2>
+  <p>
+    The Monte Carlo Discounted Cash Flow Investment Forecast Tool is a comprehensive, user-friendly application that bridges the gap between complex financial modeling and accessible investment analysis. It provides property investors with a clear, probabilistic view of future cash flows and returns, allowing for more informed decision-making. By offering a suite of interactive inputs and detailed visual outputs, the tool demystifies the uncertainties of property investment and enables you to confidently plan for the future.
+  </p>
+  <p>
+    Whether you are a seasoned investor or a newcomer to the market, this application is tailored to give you the insights needed to optimize your investment strategy and navigate the ever-changing economic landscape.
+  </p>
+    </div>
+  </body>
+</html>
