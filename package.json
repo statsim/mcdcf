@@ -2,7 +2,7 @@
   "name": "@statsim/mcdcf",
   "private": false,
   "type": "module",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "scripts": {
     "dev": "vite",
     "build": "vite build --config vite-sf.config.mjs && vite build && mv dist/index.html dist/mcdcf.html",

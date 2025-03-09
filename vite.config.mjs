@@ -13,7 +13,7 @@ import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 // https://vitejs.dev/config/
 export default defineConfig({
   outDir: 'docs',
-  // base: 'https://unpkg.com/@statsim/mcdcf@latest/docs/',
+  base: 'https://unpkg.com/@statsim/mcdcf@latest/docs/',
   plugins: [
     Vue({
       template: { transformAssetUrls }
