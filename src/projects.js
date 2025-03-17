@@ -8,7 +8,7 @@ const default_project = {
     economic_growth: {
       active: true,
       type: 'Fixed',
-      initial: 4,
+      initial: 0,
       mean: 0,
       std: 0.1,
       df: 10,
@@ -18,8 +18,8 @@ const default_project = {
     inflation: {
       active: true,
       type: 'Fixed',
-      initial: 2,
-      mean: 0.01,
+      initial: 0,
+      mean: 0,
       std: 0.1,
       df: 10,
       interval: 'Month',
@@ -28,7 +28,7 @@ const default_project = {
     discount_rate: {
       active: true,
       type: 'Fixed',
-      initial: 5,
+      initial: 0,
       mean: 0,
       std: 0.1,
       df: 10,
@@ -41,17 +41,17 @@ const default_project = {
     holdingPeriod: 5,
     debt: {
       amount: 0,
-      term: 20,
+      term: 5,
       rate: 0,
       interval: 'Year',
     },
     purchase: {
-      price: 10000000,
-      costs: 10000,
+      price: 0,
+      costs: 0,
     },
     sale: {
-      price: 11000000,
-      costs: 20000,
+      price: 0,
+      costs: 0,
     }
   },
   taxes: {
@@ -60,7 +60,7 @@ const default_project = {
       period: 27.5,
     },
     marginal_tax_rate: 40,
-    capital_gains_tax_tate: 20,
+    capital_gains_tax_rate: 20,
     recapture_tax_rate: 25,
   },
   income: {
@@ -175,7 +175,7 @@ const example_1_1 = {
       period: 27.5,
     },
     marginal_tax_rate: 0,
-    capital_gains_tax_tate: 0,
+    capital_gains_tax_rate: 0,
     recapture_tax_rate: 0,
   },
   income: {
@@ -284,7 +284,7 @@ const example_1_2 = {
       period: 27.5,
     },
     marginal_tax_rate: 0,
-    capital_gains_tax_tate: 0,
+    capital_gains_tax_rate: 0,
     recapture_tax_rate: 0,
   },
   income: {
@@ -413,7 +413,7 @@ const example_2 = {
       period: 27.5,
     },
     marginal_tax_rate: 40,
-    capital_gains_tax_tate: 20,
+    capital_gains_tax_rate: 20,
     recapture_tax_rate: 25,
   },
   income: {
@@ -619,7 +619,7 @@ const example_3 = {
       period: 27.5,
     },
     marginal_tax_rate: 40,
-    capital_gains_tax_tate: 20,
+    capital_gains_tax_rate: 20,
     recapture_tax_rate: 25,
   },
   income: {

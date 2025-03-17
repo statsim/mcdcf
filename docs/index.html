@@ -14,11 +14,14 @@
         font-family: monospace;
       }
       .main {
-        max-width: 900px;
-        width: 100%;
         padding: 16px 0;
-        margin-right: auto;
-        margin-left: auto;
+        margin-left: 260px;
+        margin-right: 30px;
+      }
+      .main-container {
+        max-width: 1130px;
+        width: 100%;
+        margin: 0 auto;
       }
       .main h1 {
         font-weight: 800;
@@ -33,6 +36,12 @@
         margin-bottom: 5px;
         line-height: 1.2;
       }
+      .main h3 {
+        font-size: 18px;
+        margin-top: 20px;
+        margin-bottom: 5px;
+        line-height: 1.2;
+      }
       .main h2, .main h3, .main h4 {
         margin-top: 24px;
       }
@@ -40,6 +49,29 @@
         font-size: 14px;
         line-height: 1.5;
         margin-top: 10px;
+      }
+      .main ul {
+        margin-top: 10px;
+        margin-bottom: 10px;
+        padding: 0;
+        line-height: 1.5;
+      }
+      .main ul li {
+        font-size: 14px;
+        line-height: 1.5;
+        margin-top: 5px;
+        margin-left: 20px;
+        padding-left: 5px;
+      }
+      .main ul li strong {
+        background-color: #e7e7e7;
+        padding: 2px 4px;
+      }
+      .main pre {
+        background-color: #e7e7e7;
+        padding: 10px;
+        font-size: 12px;
+        line-height: 1.1;
       }
       /* blinking */
       @keyframes blink {
@@ -54,7 +86,7 @@
         }
       }
       #loader {
-        height: 325px;
+        height: 387px;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -66,145 +98,450 @@
         display: none;
       }
       small {
-        font-size: 12px;
+        font-size: 12px !important;
         color: #666;
+        line-height: 1.1;
+        letter-spacing: 0.5px;
+        /* change font spacing */
+      }
+      @media print {
+        .no-print {
+          display: none !important;
+        }
+        .print-only {
+          display: block !important;
+        }
+      }
+      @media screen and (max-width: 1279px) {
+        .main {
+          margin-left: 30px;
+        }
       }
     </style>
-    <script type="module" crossorigin src="https://unpkg.com/@statsim/mcdcf@latest/docs/assets/index-erbIn28p.js"></script>
+    <script type="module" crossorigin src="https://unpkg.com/@statsim/mcdcf@latest/docs/assets/index-C7yO3iqv.js"></script>
     
   </head>
   <body>
     <div id="app"></div>
 
-    <div class="main">
-    <div id="loader">
-      <p>Loading...</p>
-    </div>
+    <div class="main no-print">
+      <div class="main-container">
+      <div id="loader">
+        <p>Loading...</p>
+      </div>
 
-  <h1>Monte Carlo Discounted Cash Flow <span style="font-weight: 200">(MCDCF)</span></h1>
-  <small>
-    Download bundled offline version from: <a href="https://github.com/statsim/mcdcf/releases">https://github.com/statsim/mcdcf/releases</a>
-  </small> 
-  <h2>Overview</h2>
-  <p>
-    The Monte Carlo Discounted Cash Flow tool is designed for property investors who want to forecast the potential financial performance of their investments. This application helps you evaluate how various economic and property-specific factors may influence your cash flow over time. By simulating multiple scenarios, it provides an informed projection of key metrics such as cash flows and internal rate of return (IRR), empowering you to make better investment decisions.
-  </p>
-  
-  <h2>The Problem It Solves</h2>
-  <p>
-    Making a real estate investment involves uncertainty. Market conditions, economic factors, and property-specific costs can change over time, and predicting these changes can be challenging. Many investors struggle to understand how variables like inflation, economic growth, and interest rates might affect the performance of their investments.
-  </p>
-  <p>
-    This application solves the problem by using Monte Carlo simulations to model a wide range of possible future scenarios. It provides you with a probabilistic forecast of your investment's performance, showing potential outcomes rather than a single deterministic forecast. With this tool, you can better gauge the risks and rewards associated with a property, helping you to plan and strategize more effectively.
-  </p>
-  
-  <h2>User Inputs</h2>
-  <h3>Economic and Model Parameters</h3>
-  <p>
-    The tool begins by asking for general economic parameters that affect the entire investment environment:
-  </p>
-  <ul>
-    <li><strong>Economic Growth:</strong> Specify the initial growth rate of the economy and set parameters for how it might change over time.</li>
-    <li><strong>Inflation:</strong> Define the starting rate of inflation and provide estimates for its progression.</li>
-    <li><strong>Discount Rate:</strong> Input the rate used to discount future cash flows back to their present value.</li>
-    <li><strong>Number of Simulation Samples:</strong> Choose how many scenarios you want to generate for a comprehensive analysis.</li>
-  </ul>
-  
-  <h3>Property Details</h3>
-  <p>
-    Next, you provide specific details about the property itself. These inputs are essential for calculating the financial dynamics of your investment:
-  </p>
-  <ul>
-    <li><strong>Property Name and Holding Period:</strong> Identify the property and set the duration of your investment.</li>
-    <li><strong>Debt Structure:</strong> Enter the debt amount, term, and interest rate to calculate the monthly debt service.</li>
-    <li><strong>Purchase and Sale Information:</strong> Input the purchase price, associated costs, sale price, and sale expenses to evaluate overall profitability.</li>
-  </ul>
-  
-  <h3>Income and Expense Items</h3>
-  <p>
-    The tool allows you to add multiple income and expense items, providing a detailed look at the property’s operational performance:
-  </p>
-  <h4>Income Items</h4>
-  <p>
-    For each income item (such as parking fees or rental income), you can specify:
-  </p>
-  <ul>
-    <li><strong>Description:</strong> A brief title or name for the income source.</li>
-    <li><strong>Amount:</strong> The base revenue generated per period.</li>
-    <li><strong>Units and Occupancy:</strong> The number of revenue-generating units and the percentage of those units that are occupied.</li>
-    <li><strong>Growth Settings:</strong> Choose whether the income grows at a custom rate or follows inflation, and define the frequency of updates.</li>
-    <li><strong>Active Status:</strong> Toggle whether the income stream is currently active, affecting its visibility and weight in the simulation.</li>
-  </ul>
-  
-  <h4>Expense Items</h4>
-  <p>
-    Similarly, for expense items (such as insurance or management fees), you input:
-  </p>
-  <ul>
-    <li><strong>Description:</strong> A brief description of the expense.</li>
-    <li><strong>Amount:</strong> The cost per period, which can be an absolute value or a percentage relative to a target income source.</li>
-    <li><strong>Type and Target:</strong> Specify whether the expense is an absolute cost or relative to income, and if relative, define the target (for example, Gross Income).</li>
-    <li><strong>Growth Settings:</strong> Like income, set the growth type and frequency for expense changes over time.</li>
-    <li><strong>Active Status:</strong> Enable or disable the expense, which visually adjusts the row opacity in the data table.</li>
-  </ul>
-  
-  <h2>Outputs and Reporting</h2>
-  <h3>Simulated Financial Projections</h3>
-  <p>
-    Once you have provided all inputs, the tool runs a series of Monte Carlo simulations. It calculates monthly values for:
-  </p>
-  <ul>
-    <li><strong>Effective Gross Income and Operating Expenses:</strong> Combined to determine the net operating income (NOI).</li>
-    <li><strong>Debt Service:</strong> Tracking both principal and interest components of your debt repayments.</li>
-    <li><strong>Cash Flows:</strong> Both before-tax (BTCF) and after-tax (ATCF) cash flows over the entire holding period.</li>
-    <li><strong>Internal Rate of Return (IRR):</strong> Annualized returns that reflect the investment’s performance under various scenarios.</li>
-  </ul>
-  
-  <h3>Visual Reports and Charts</h3>
-  <p>
-    The application presents its outputs in a clear, visually engaging format:
-  </p>
-  <ul>
-    <li><strong>Line Charts:</strong> Display the evolution of economic growth, inflation, and discount rates over time.</li>
-    <li><strong>Debt Service Graphs:</strong> Show the gradual decrease in debt balance and breakdown of monthly payments.</li>
-    <li><strong>Box Plots:</strong> Compare the distributions of before-tax and after-tax cash flows, highlighting potential variability.</li>
-    <li><strong>Histogram Charts:</strong> Illustrate the spread of IRR outcomes across all simulation samples.</li>
-  </ul>
-  
-  <h3>Data Tables and Interactivity</h3>
-  <p>
-    In addition to charts, the tool provides detailed data tables that list the simulation results by month. These tables are interactive:
-  </p>
-  <ul>
-    <li><strong>Inline Editing:</strong> Easily adjust income and expense values directly within the table.</li>
-    <li><strong>Row Actions:</strong> Clone or delete specific income/expense items, with inactive items visibly dimmed to indicate their status.</li>
-    <li><strong>Responsive Design:</strong> The interface adapts to different screen sizes, ensuring smooth operation on desktops and mobile devices.</li>
-  </ul>
-  
-  <h2>Sharing and Collaboration</h2>
-  <h3>Share Your Project via URL</h3>
-  <p>
-    One of the standout features of the application is the ability to share your entire project configuration via a unique URL. When you click the "Copy Link" button, the tool compresses all your input data into a URL parameter. Recipients who open the URL will see your saved settings and simulation results without any additional setup.
-  </p>
-  
-  <h3>User Experience and Benefits</h3>
-  <p>
-    This application is designed to empower investors with a deep understanding of their property investments. By combining intuitive input forms, interactive data tables, and dynamic visual reports, the tool helps you:
-  </p>
-  <ul>
-    <li>Visualize how external economic factors can influence your investment outcomes.</li>
-    <li>Assess cash flow stability and risk through multiple simulated scenarios.</li>
-    <li>Quickly adjust assumptions and see real-time impacts on forecasted returns.</li>
-    <li>Collaborate and share your investment model easily with peers or advisors.</li>
-  </ul>
-  
-  <h2>Conclusion</h2>
-  <p>
-    The Monte Carlo Discounted Cash Flow Investment Forecast Tool is a comprehensive, user-friendly application that bridges the gap between complex financial modeling and accessible investment analysis. It provides property investors with a clear, probabilistic view of future cash flows and returns, allowing for more informed decision-making. By offering a suite of interactive inputs and detailed visual outputs, the tool demystifies the uncertainties of property investment and enables you to confidently plan for the future.
-  </p>
-  <p>
-    Whether you are a seasoned investor or a newcomer to the market, this application is tailored to give you the insights needed to optimize your investment strategy and navigate the ever-changing economic landscape.
-  </p>
+      <h1>Monte Carlo Discounted Cash Flow <span style="font-weight: 200">(MCDCF)</span></h1>
+      <small>
+        Download bundled offline version from: <a href="https://github.com/statsim/mcdcf/releases">https://github.com/statsim/mcdcf/releases</a>
+      </small> 
+      <h2>Overview</h2>
+      <p>
+        The Monte Carlo Discounted Cash Flow (MCDCF) tool is a simulation‐based financial model designed for property investment analysis. It uses Monte Carlo techniques to create a distribution of possible future cash flows and performance metrics over the investment period. By integrating uncertainty in economic factors, property specifics, and operational variables, the tool computes key outputs such as Net Present Value (NPV), Internal Rate of Return (IRR), Before-Tax Cash Flow (BTCF), and After-Tax Cash Flow (ATCF). Users may choose between classical (deterministic) scenarios and probabilistic Monte Carlo simulations by adjusting the input parameters.
+      </p>
+
+      <h2>Real Estate Financial Modeling</h2>
+      <p>
+        Making a real estate investment involves uncertainty. Market conditions, economic factors, and property-specific costs can change over time, and predicting these changes can be challenging. Many investors struggle to understand how variables like inflation, economic growth, and interest rates might affect the performance of their investments.
+      </p>
+      <p>
+        This application solves the problem by using Monte Carlo simulations to model a wide range of possible future scenarios. It provides you with a probabilistic forecast of your investment's performance, showing potential outcomes rather than a single deterministic forecast. With this tool, you can better gauge the risks and rewards associated with a property, helping you to plan and strategize more effectively.
+      </p>
+
+      <h2>Main Components</h2>
+      <h3>Economic and Model Parameters</h3>
+      <p>
+        This block sets the simulation settings and global economic assumptions. It defines the time interval for each simulation step, the total number of steps, the number of samples (simulation runs), and the precision of the outputs. 
+      </p>
+      <ul>
+        <li><strong>Economic Growth</strong>: Specifies growth rate of the economy which can be used to model rental growth across multiple income streams.</li>
+        <li><strong>Inflation</strong>: Defines inflation and its growth. Can be used to adjust income and expense items over time.</li>
+        <li><strong>Discount Rate</strong>: Rate used to discount future cash flows back to their present value.</li>
+      </ul>
+      <p>
+        Each income and expense item can be set to grow at a <strong>custom rate</strong>, follow global growth rate (i.e. inflation), or remain fixed. 
+        For each economic variable (economic growth, inflation, discount rate), you can choose:</p>
+      <ul>
+        <li><strong>Fixed</strong>: A constant rate that remains unchanged throughout the simulation.</li>
+        <li><strong>Sample</strong>: A distribution of possible values that the variable might take eachh simulation step.</li>
+        <li><strong>Sample Once</strong>: A single value that is randomly selected at the beginning of the simulation and remains constant thereafter.</li>
+        <li><strong>Tabular</strong>: A custom table of values that the variable follows over time.</li>
+      </ul>
+      <h3>Property Details</h3>
+      <p>
+        Specific details about the property itself. These inputs are essential for calculating the financial dynamics of your investment:
+      </p>
+      <ul>
+        <li><strong>Property Name</strong>: Identify the property.</li>
+        <li><strong>Debt</strong>: Enter the debt amount, term, and <b>annual</b> interest rate to calculate the periodic debt service. You can also select ammortization interval (monthly or annually).</li>
+        <li><strong>Purchase</strong> and <strong>Sale</strong>: Input the purchase price, associated costs, sale price, and sale expenses to evaluate overall profitability.</li>
+      </ul>
+      <h3>Income Items <span style="font-weight: 100;">(Rent and Other Revenue)</span></h3>
+      <p>Income items represent revenue streams from the property. For each income item, you specify:</p>
+      <ul>
+        <li><strong>Description</strong>: A brief title or name for the income source.</li>
+        <li><strong>Amount</strong>: The base revenue generated per period.</li>
+        <li><strong>Units and Occupancy</strong>: The number of revenue-generating units and the percentage of those units that are occupied.</li>
+        <li><strong>Interval</strong>: The frequency of updates for the income stream.</li>
+        <li><strong>Active Status</strong>: Toggle whether the income stream is currently active, affecting its visibility and weight in the simulation.</li>
+      </ul>
+      <p>For both amount and occupancy you can specify a growth rate clicking arrow button on the right side of the input field.</p>
+      <ul>
+        <li><strong>Amount Growth</strong>: The growth rate of the income item. Can be <b>Fixed</b>, <b>Sample-based</b>, <b>Random Walk</b>, <b>Tabular</b> or tied to <b>Inflation</b>.</li>
+        <li><strong>Occupancy Growth</strong>: The growth rate of the occupancy. Can be <b>Fixed</b>, <b>Sample-based</b>, <b>Random Walk</b>, <b>Tabular</b> or tied to <b>Economic Growth</b>.</li>
+      </ul>
+      <h3>Expense Items</h3>
+      <p>
+        Expenses are divided into two categories: <b>Operating Expenses</b> and <b>Capital Expenses</b>. Operating expenses are recurring costs associated with the property's day-to-day operations, while capital expenses are one-time costs that improve the property's value. For each expense item, you input:
+      </p>
+      <ul>
+        <li><strong>Description:</strong> A brief description of the expense.</li>
+        <li><strong>Amount:</strong> The cost per period, which can be an absolute value or a percentage relative to a target income source.</li>
+        <li><strong>Type and Target:</strong> Specify whether the expense is an absolute cost or relative to income, and if relative, define the target (for example, Gross Income).</li>
+        <li><strong>Growth Settings:</strong> Like income, set the growth type and frequency for expense changes over time.</li>
+        <li><strong>Active Status:</strong> Enable or disable the expense, which visually adjusts the row opacity in the data table.</li>
+      </ul>
+      <h3>Taxes</h3>
+      <p>
+        Tax settings allow you to define the tax rate and the method of calculation.
+      </p>
+      <ul>
+        <li><strong>Depreciation</strong>: Controls how the property's depreciable basis is allocated over time
+          <ul>
+            <li><b>Depreciation Amount</b>: Represents the depreciation rate or portion of the property's basis that can be depreciated on an annual basis. In many tax systems, only a specific percentage (or a portion) of the building's cost can be written off each year.</li>
+            <li><b>Recovery Period</b>: Specifies the total number of years over which the property is depreciated. For residential real estate in the US, this often defaults to 27.5 years; for commercial, it may be 39 years (or another value, depending on local regulations).</li>
+          </ul>
+        </li>
+        <li><strong>Disposition Taxes</strong>: This block deals with taxes incurred when the property is sold
+          <ul>
+            <li><b>Capital Gains Tax Rate</b>: The tax rate applied to any capital gain realized upon selling the property—generally the difference between the net sale price and the adjusted basis (purchase price plus improvements minus depreciation).</li>
+            <li><b>Recapture Tax Rate</b>: A specific rate that applies to the portion of gains attributed to previously taken depreciation. Upon sale, tax authorities often “recapture” part of the depreciation benefit at this separate rate. </li>
+          </ul>
+        </li>
+        <li><strong>Marginal Taxes</strong>: This block sets the ongoing income tax rate
+          <ul>
+            <li><b>Marginal Tax Rate</b>: The ordinary income tax rate that applies to the property's taxable income each period (e.g., monthly or yearly). In other words, it is the top bracket or effective rate used to calculate income taxes on the property's net operating income (after expenses, but before capital gains events)</li>
+          </ul>
+        </li>
+      </ul>
+      <h2>Outputs and Reporting</h2>
+      <h3>Simulated Financial Projections</h3>
+      <p>
+        Once you have provided all inputs, the tool runs a series of Monte Carlo simulations. It calculates monthly values for:
+      </p>
+      <ul>
+        <li><strong>Effective Gross Income and Operating Expenses:</strong> Combined to determine the net operating income (NOI).</li>
+        <li><strong>Debt Service:</strong> Tracking both principal and interest components of your debt repayments.</li>
+        <li><strong>Cash Flows:</strong> Both before-tax (BTCF) and after-tax (ATCF) cash flows over the entire holding period.</li>
+        <li><strong>Internal Rate of Return (IRR):</strong> Annualized returns that reflect the investment’s performance under various scenarios.</li>
+      </ul>
+      <h3>Optimized for PDF export</h3>
+      <p>Press <strong>Ctrl+P</strong> to print the report or save as PDF. The tool is optimized for PDF export, so you can easily save your project for future reference or share it with others. You can make significant adjustments on that page too.</p>
+      
+      <h2>Sharing</h2>
+      <h3>Share Your Project via URL</h3>
+      <p>
+        One of the features of the application is the ability to share your entire project configuration via a unique URL. When you click the "Copy Link" button, the tool compresses all your input data into a URL parameter. Recipients who open the URL will see your saved settings and simulation results without any additional setup. No servers involved on our side. Full project is encoded in the URL itself.
+      </p>
+      <h3>Import/Export uncompressed JSON config</h3>
+      <p>
+        You can also export and import your project configuration as a JSON file in <strong>Import/Export</strong> section. This feature is useful for saving your work locally or pasting outputs from LLMs. The JSON file contains all the input data and settings, allowing you to pick up where you left off at any time.
+      </p>
+      
+      <h2>Examples for LLMs</h2>
+      <p>
+        Include following text blocks in your chats with large language models (LLMs) to make them generate MCDCF projects:
+      </p>
+      <h3>Full example:</h3>
+      <pre>
+{
+  "model": {
+    "interval": "Year",
+    "steps": 10,
+    "samples": 1,
+    "precision": 2,
+    "economic_growth": {
+      "active": true,
+      "type": "Fixed",
+      "initial": 2.314552484901538,
+      "interval": "Year"
+    },
+    "inflation": {
+      "active": true,
+      "type": "Fixed",
+      "initial": 9.91444696610541,
+      "interval": "Year"
+    },
+    "discount_rate": {
+      "active": true,
+      "type": "Fixed",
+      "initial": 7.397029901537655,
+      "interval": "Year"
+    }
+  },
+  "property": {
+    "name": "Downtown Office Complex",
+    "debt": {
+      "amount": 2000000,
+      "term": 20,
+      "rate": 4.5,
+      "interval": "Month"
+    },
+    "purchase": {
+      "price": 3000000,
+      "costs": 150000
+    },
+    "sale": {
+      "price": "4000000",
+      "costs": 200000
+    }
+  },
+  "income": {
+    "items": [
+      {
+        "id": 1,
+        "description": "Office Rental Income",
+        "active": true,
+        "amount": 25000,
+        "units": 10,
+        "occupancy": 90,
+        "interval": "Year",
+        "amount_growth": {
+          "type": "Inflation",
+          "initial": 2,
+          "interval": "Year",
+          "target_values": [],
+          "growth_values": [],
+          "factor": "1"
+        },
+        "occupancy_growth": {
+          "type": "Fixed",
+          "initial": 0,
+          "interval": "Year",
+          "target_values": [],
+          "growth_values": []
+        }
+      }
+    ]
+  },
+  "expenses": {
+    "items": [
+      {
+        "id": 1,
+        "description": "Property Management Fee",
+        "active": true,
+        "amount": 0.05,
+        "type": "Relative",
+        "target": "Gross Income",
+        "interval": "Month",
+        "amount_growth": {
+          "type": "Fixed",
+          "initial": 0,
+          "interval": "Year",
+          "target_values": [],
+          "growth_values": []
+        }
+      },
+      {
+        "id": 2,
+        "description": "Maintenance Expense",
+        "active": true,
+        "amount": 5000,
+        "type": "Absolute",
+        "target": "",
+        "interval": "Month",
+        "amount_growth": {
+          "type": "Fixed",
+          "initial": 1,
+          "interval": "Year",
+          "target_values": [],
+          "growth_values": []
+        }
+      }
+    ]
+  },
+  "capex": {
+    "items": [
+      {
+        "id": 1,
+        "description": "Major Renovation",
+        "active": false,
+        "amount": 300000,
+        "type": "Absolute",
+        "target": "",
+        "interval": "Year",
+        "amount_growth": {
+          "type": "Fixed",
+          "initial": 0,
+          "interval": "Year",
+          "target_values": [],
+          "growth_values": []
+        }
+      }
+    ]
+  },
+  "taxes": {
+    "depreciation": {
+      "amount": 3.5,
+      "period": 27.5
+    },
+    "marginal_tax_rate": 35,
+    "capital_gains_tax_rate": 20,
+    "recapture_tax_rate": 25
+  }
+}
+      </pre>
+      <h2>Model</h2>
+<p>
+  Defines how the simulation is run (time steps, number of samples, precision). Sets the behavior of economic variables (economic growth, inflation, and discount rate). Each variable can be fixed (deterministic) or configured to vary stochastically (e.g., random walk, sample-based).
+</p>
+<h3>Key Fields</h3>
+<ul>
+  <li><strong>interval</strong>: The size of each simulation step (Year, Quarter, Month).</li>
+  <li><strong>steps</strong>: How many steps to simulate (e.g., 10 years).</li>
+  <li><strong>samples</strong>: Number of simulation runs. 1 means classical (no Monte Carlo).</li>
+  <li><strong>precision</strong>: Decimal places for results.</li>
+  <li><strong>economic_growth / inflation / discount_rate</strong>:
+    <ul>
+      <li><strong>active</strong>: Whether this variable is used in the model.</li>
+      <li><strong>type</strong>: Growth type (Fixed, Random Walk, Sample, Tabular, etc.).</li>
+      <li><strong>initial</strong>: Starting rate or value.</li>
+      <li><strong>interval</strong>: How often the rate updates (Year, Quarter, etc.).</li>
+    </ul>
+  </li>
+</ul>
+<h3>Possible Variations</h3>
+<ul>
+  <li>Monte Carlo: Increase samples above 1 and set the type of a variable to Random Walk or Sample, adding fields like mean, std, and df.</li>
+  <li>Tabular: Provide a step-by-step sequence in <em>growth_values</em> for inflation or other variables.</li>
+  <li>Shorter/Longer Horizons: Change steps to model fewer or more periods.</li>
+</ul>
+
+<h2>Property</h2>
+<p>
+  Contains property-level details: identification, financing (debt), purchase, and sale information. Helps compute debt service and net proceeds at sale.
+</p>
+<h3>Key Fields</h3>
+<ul>
+  <li><strong>name</strong>: A label for the property (e.g., "Downtown Office Complex").</li>
+  <li><strong>debt</strong>:
+    <ul>
+      <li><strong>amount</strong>: Principal borrowed.</li>
+      <li><strong>term</strong>: Loan term in years.</li>
+      <li><strong>rate</strong>: Annual interest rate.</li>
+      <li><strong>interval</strong>: Payment interval (Month, Year, etc.).</li>
+    </ul>
+  </li>
+  <li><strong>purchase</strong>:
+    <ul>
+      <li><strong>price</strong>: Acquisition cost.</li>
+      <li><strong>costs</strong>: Additional fees or closing costs.</li>
+    </ul>
+  </li>
+  <li><strong>sale</strong>:
+    <ul>
+      <li><strong>price</strong>: Anticipated sale price (can be numeric or string).</li>
+      <li><strong>costs</strong>: Selling costs.</li>
+    </ul>
+  </li>
+</ul>
+<h3>Possible Variations</h3>
+<ul>
+  <li>Cash Purchase: Set <em>debt.amount</em> to 0 if no financing is involved.</li>
+  <li>Shorter Loan: Decrease <em>debt.term</em> or increase <em>rate</em>.</li>
+  <li>Larger/Smaller Deal: Adjust <em>purchase.price</em> and <em>sale.price</em> to reflect bigger or smaller transactions.</li>
+</ul>
+
+<h2>Income</h2>
+<p>
+  Describes one or more revenue streams from the property (e.g., rent, parking fees). Each item can have its own base amount, growth settings, and occupancy.
+</p>
+<h3>Key Fields</h3>
+<ul>
+  <li><strong>description</strong>: Short label for the income source.</li>
+  <li><strong>amount</strong>: Base revenue per interval (e.g., $25,000/year).</li>
+  <li><strong>units</strong>: Number of revenue-generating units (e.g., 10 office suites).</li>
+  <li><strong>occupancy</strong>: Percentage of units occupied.</li>
+  <li><strong>interval</strong>: Frequency of the income calculation (Month, Quarter, Year).</li>
+  <li><strong>amount_growth</strong> and <strong>occupancy_growth</strong>:
+    <ul>
+      <li><strong>type</strong>: Growth approach (Inflation, Fixed, Random Walk, etc.).</li>
+      <li><strong>initial</strong>: Starting growth rate or offset.</li>
+      <li><strong>interval</strong>: Update frequency for growth.</li>
+      <li><strong>target_values</strong>/<strong>growth_values</strong>: Used if the type is Tabular.</li>
+    </ul>
+  </li>
+  <li><strong>Active Status</strong>: Toggle whether the income stream is currently active, affecting its visibility and weight in the simulation.</li>
+</ul>
+<p>
+  For both amount and occupancy you can specify a growth rate by clicking the arrow button on the right side of the input field.
+</p>
+<ul>
+  <li><strong>Amount Growth</strong>: The growth rate of the income item. Can be <b>Fixed</b>, <b>Sample-based</b>, <b>Random Walk</b>, <b>Tabular</b> or tied to <b>Inflation</b>.</li>
+  <li><strong>Occupancy Growth</strong>: The growth rate of the occupancy. Can be <b>Fixed</b>, <b>Sample-based</b>, <b>Random Walk</b>, <b>Tabular</b> or tied to <b>Economic Growth</b>.</li>
+</ul>
+<h3>Possible Variations</h3>
+<ul>
+  <li>Seasonal Occupancy: Use Tabular for <em>occupancy_growth</em>.</li>
+  <li>Randomized Rent Growth: Switch <em>amount_growth.type</em> to Sample or Random Walk and specify mean, std.</li>
+  <li>Multiple Income Sources: Add more items with unique descriptions and amounts.</li>
+</ul>
+
+<h2>Expenses</h2>
+<p>
+  Outlines operational costs of the property. Each expense can be absolute (fixed dollar) or relative (percentage of a target like Gross Income). Growth can be modeled similarly to income items.
+</p>
+<h3>Key Fields</h3>
+<ul>
+  <li><strong>description</strong>: A brief description of the expense.</li>
+  <li><strong>amount</strong>: The cost per period, which can be an absolute value or a percentage if the type is Relative.</li>
+  <li><strong>type and target</strong>: Specify whether the expense is an absolute cost or relative to income, and if relative, define the target (for example, Gross Income).</li>
+  <li><strong>interval</strong>: How frequently the expense is calculated.</li>
+  <li><strong>amount_growth</strong>: Growth model for this expense.</li>
+  <li><strong>Active Status</strong>: Enable or disable the expense, which visually adjusts the row opacity in the data table.</li>
+</ul>
+<h3>Possible Variations</h3>
+<ul>
+  <li>Inflation-Linked Costs: Set <em>amount_growth.type</em> to <b>Inflation</b>.</li>
+  <li>Stochastic Expenses: Use <b>Random Walk</b> or <b>Sample</b> to simulate uncertain costs.</li>
+  <li>Relative to Net Operating Income: Change <em>target</em> to <b>Net Operating Income</b> for some expenses.</li>
+</ul>
+
+<h2>Capex</h2>
+<p>
+  Represents capital expenditures (major improvements or renovations). These costs are treated separately from operating expenses and are often excluded from Net Operating Income (NOI).
+</p>
+<h3>Key Fields</h3>
+<ul>
+  <li><strong>amount</strong>: The cost of the capital project.</li>
+  <li><strong>type</strong>: Usually "Absolute", though relative capex is possible.</li>
+  <li><strong>interval</strong>: The period in which this expenditure occurs or is updated.</li>
+  <li><strong>amount_growth</strong>: If capex is expected to change over time or if multiple capex outlays occur.</li>
+</ul>
+<h3>Possible Variations</h3>
+<ul>
+  <li>Planned Upgrades: Set active to true for a specific year, or use Tabular if the cost is phased over multiple steps.</li>
+  <li>Stochastic Renovation Cost: Switch <em>amount_growth.type</em> to <b>Random Walk</b> or <b>Sample</b>.</li>
+</ul>
+
+<h2>Taxes</h2>
+<p>
+  Tax settings allow you to define the tax rate and the method of calculation. These settings apply during both the holding period (marginal tax on income) and at disposition (capital gains and depreciation recapture).
+</p>
+<h3>Key Fields</h3>
+<ul>
+  <li><strong>depreciation.amount</strong>: Annual percentage of the property basis that is depreciable.</li>
+  <li><strong>depreciation.period</strong>: Recovery period in years.</li>
+  <li><strong>marginal_tax_rate</strong>: Rate applied to ongoing taxable income.</li>
+  <li><strong>capital_gains_tax_rate</strong>: Rate applied to the capital gain at sale.</li>
+  <li><strong>recapture_tax_rate</strong>: Rate for recapturing depreciation at sale.</li>
+</ul>
+<h3>Possible Variations</h3>
+<ul>
+  <li>No Depreciation: Set <em>depreciation.amount</em> to 0.</li>
+  <li>Different Tax Regimes: Adjust <em>marginal_tax_rate</em>, <em>capital_gains_tax_rate</em>, and <em>recapture_tax_rate</em> to reflect local tax laws.</li>
+  <li>Shorter Depreciation Period: Lower <em>depreciation.period</em> if local rules allow accelerated depreciation.</li>
+</ul>
+      </div>
     </div>
   </body>
 </html>

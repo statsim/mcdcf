@@ -61,6 +61,22 @@ body {
   margin-top: 3px;
   /* text-align: right; */
 }
+#property-title {
+  position: relative;
+  font-size: 38px;
+  font-weight: 900;
+}
+
+#property-title::after {
+  content: "";
+  position: absolute;
+  left: 1px;
+  bottom: -1px; /* Adjust this value to control spacing */
+  width: 5px;
+  height: 5px;
+  background-color: #000;
+}
+
 .caption {
   font-size: 12px;
   color: #888;
@@ -68,6 +84,22 @@ body {
 }
 .red-bg {
   background-color: red;
+}
+
+
+@media print {
+  /* Hide elements with class no-print */
+  .v-main {
+    padding: 20px !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  
+  /* Optionally, only show elements with class print-only */
+  .print-only {
+    display: block !important;
+  }
 }
 </style>
 
@@ -90,7 +122,7 @@ body {
       <v-btn @click="run()" color="black" variant="flat" dark prepend-icon="$mdi-lightning-bolt" rounded="0">RUN MODEL</v-btn>
       <!-- <v-btn icon="mdi-dots-vertical" variant="text"></v-btn> -->
     </v-app-bar>
-    <v-navigation-drawer :width="220" v-model="drawer">
+    <v-navigation-drawer :width="220" v-model="drawer" class="no-print">
       <v-list-item>
         <div id="logo">
           <span id="logo-1">M</span>
@@ -134,30 +166,10 @@ body {
           >mdi-arrow-bottom-right</v-icon>
         </template> -->
       </v-list-item>
-      <v-list-item link title="Taxes" @click="goToPanel(4)" class="nav">
-        <!-- <template v-slot:prepend>
-          <v-icon
-            color="#cc0121"
-            size="small"
-          >mdi-skull</v-icon>
-        </template> -->
-      </v-list-item>
-      <v-list-item link title="Results" @click="goToPanel(5)" class="nav">
-        <!-- <template v-slot:prepend>
-          <v-icon
-            color="#AAAAAA"
-            size="small"
-          >mdi-chart-line</v-icon>
-        </template> -->
-        <!-- <template v-slot:append>
-          <v-card variant="tonal" style="padding: 10px;">
-            <p>NPV: {{ project.npv }}%</p>
-            <p>IRR: {{ project.irr }}%</p>
-          </v-card>
-        </template> -->
+      <v-list-item link title="Taxes" @click="goToPanel(4)" class="nav"></v-list-item>
+      <v-list-item link title="Import/Export" @click="goToPanel(5)" class="nav"></v-list-item>
+      <v-list-item link title="Results" @click="goToPanel(6)" class="nav">
         <v-card variant="text" style="margin-top: 12px; padding: 10px 0px;" v-if="!first_run">
-            <!-- <h5>BTIRR: {{ results.btirr }}% <sup style="color: #888; font-size: 10px; font-weight: 100;"> ±{{ results.btirr_std }} </sup></h5> -->
-            <!-- <h5>ATIRR: {{ results.atirr }}% <sup style="color: #888; font-size: 10px; font-weight: 100;"> ±{{ results.atirr_std }} </sup></h5> -->
             <h5><span style="background: black; color: white; padding: 1px 5px;"> NPV</span> {{ results.npv }} <sup style="color: #888; font-size: 10px; font-weight: 100;"> ±{{ results.npv_std }} </sup></h5>
             <h5><span style="background: black; color: white; padding: 1px 5px;"> IRR</span> {{ results.irr }}% <sup style="color: #888; font-size: 10px; font-weight: 100;"> ±{{ results.irr_std }} </sup></h5>
         </v-card>
@@ -230,7 +242,15 @@ body {
     <v-main>
       <v-container>
         <!-- <v-expansion-panels multiple variant="accordion" v-model="active_panels" elevation="0"> -->
-        <v-expansion-panels multiple variant="accordion" v-model="active_panels" elevation="0" style="border: 1px solid #e0e0e0" rounded="0">
+        <v-expansion-panels
+          multiple
+          variant="accordion"
+          v-model="active_panels"
+          elevation="0"
+          style="border: 1px solid #e0e0e0"
+          rounded="0"
+          class="no-print"
+        >
           <v-expansion-panel id="panel_0">
           <!-- <v-expansion-panel id="panel_0" style="border-left: 3px solid #1832c0"> -->
             <v-expansion-panel-title>
@@ -685,11 +705,8 @@ body {
             </v-expansion-panel-title>
             <v-expansion-panel-text>
                 <v-row>
-                  <v-col cols="12" md="8">
-                    <v-text-field label="Project Name" v-model="project.property.name"></v-text-field>
-                  </v-col>
-                  <v-col cols="12" md="4">
-                    <v-text-field label="Holding period, years" v-model="project.property.holdingPeriod" type="number" min="1"></v-text-field>
+                  <v-col cols="12">
+                    <v-text-field label="Property Name" v-model="project.property.name"></v-text-field>
                   </v-col>
                 </v-row>
                 <v-row>
@@ -699,7 +716,7 @@ body {
                         Debt
                       </template>
                       <template v-slot:text>
-                        <v-text-field label="Purchase price" v-model="project.property.debt.amount" suffix="$" type="number" min="0"></v-text-field>
+                        <v-text-field label="Debt amount" v-model="project.property.debt.amount" suffix="$" type="number" min="0"></v-text-field>
                         <v-row>
                           <v-col cols="12" sm="6"><v-text-field label="Term, years" v-model="project.property.debt.term"></v-text-field></v-col>
                           <v-col cols="12" sm="6"><v-text-field label="Annual interest rate, %" v-model="project.property.debt.rate"></v-text-field></v-col>
@@ -750,7 +767,7 @@ body {
                 density="default"
                 :headers="incomeHeaders"
                 :items="project.income.items"
-                v-model:expanded="incomeExpanded"
+                v-model:expanded="income_expanded"
                 item-value="id"
                 class="elevation-1"
                 :mobile-breakpoint="0"
@@ -768,10 +785,10 @@ body {
               <template #item.data-table-expand="{ toggleExpand, isExpanded, item }">
                 <v-btn
                   variant="text"
-                  :icon="incomeExpanded.includes(item.id) ? '$mdi-chevron-up' : '$mdi-chevron-down'" 
+                  :icon="income_expanded.includes(item.id) ? '$mdi-chevron-up' : '$mdi-chevron-down'" 
                   @click="() => {
-                  if (!this.incomeExpanded.includes(item.id)) this.incomeExpanded.push(item.id);
-                  else this.incomeExpanded = this.incomeExpanded.filter((id) => id !== item.id);
+                  if (!this.income_expanded.includes(item.id)) this.income_expanded.push(item.id);
+                  else this.income_expanded = this.income_expanded.filter((id) => id !== item.id);
                 }"></v-btn>
               </template>
               -->
@@ -1146,7 +1163,7 @@ body {
                       prepend-icon="$mdi-plus" 
                       color="black"
                       variant="outlined"
-                      @click="addRow('income')"
+                      @click="add_row('income')"
                       style="margin-right: 10px"
                       rounded="0"
                     >Add Row</v-btn>
@@ -1155,7 +1172,7 @@ body {
                       color="black"
                       variant="outlined"
                       density="comfortable"
-                      @click="toggleView('income')"
+                      @click="toggle_view('income')"
                       style="margin-right: 10px"
                     ></v-btn>
                   </div>
@@ -1319,7 +1336,7 @@ body {
                 density="default"
                 :headers="expensesHeaders"
                 :items="project.expenses.items"
-                v-model:expanded="expensesExpanded"
+                v-model:expanded="expenses_expanded"
                 item-value="id"
                 class="elevation-1"
                 :mobile-breakpoint="0"
@@ -1596,7 +1613,7 @@ body {
                       prepend-icon="$mdi-plus" 
                       color="black"
                       variant="outlined"
-                      @click="addRow('expenses')"
+                      @click="add_row('expenses')"
                       style="margin-right: 10px"
                       rounded="0"
                     >Add Row</v-btn>
@@ -1605,7 +1622,7 @@ body {
                       color="black"
                       variant="outlined"
                       density="comfortable"
-                      @click="toggleView('expenses')"
+                      @click="toggle_view('expenses')"
                       style="margin-right: 10px"
                     ></v-btn>
                   </div>
@@ -1790,7 +1807,7 @@ body {
                 density="default"
                 :headers="expensesHeaders"
                 :items="project.capex.items"
-                v-model:expanded="expensesExpanded"
+                v-model:expanded="capex_expanded"
                 item-value="id"
                 class="elevation-1"
                 :mobile-breakpoint="0"
@@ -2067,7 +2084,7 @@ body {
                       prepend-icon="$mdi-plus" 
                       color="black"
                       variant="outlined"
-                      @click="addRow('expenses')"
+                      @click="add_row('capex')"
                       style="margin-right: 10px"
                       rounded="0"
                     >Add Row</v-btn>
@@ -2076,7 +2093,7 @@ body {
                       color="black"
                       variant="outlined"
                       density="comfortable"
-                      @click="toggleView('expenses')"
+                      @click="toggle_view('capex')"
                       style="margin-right: 10px"
                     ></v-btn>
                   </div>
@@ -2299,7 +2316,7 @@ body {
                       Disposition Taxes
                     </template>
                     <template v-slot:text>
-                      <v-text-field label="Capital Gains Tax Rate" v-model="project.taxes.capital_gains_tax_tate" suffix="%" type="number" min="0"></v-text-field>
+                      <v-text-field label="Capital Gains Tax Rate" v-model="project.taxes.capital_gains_tax_rate" suffix="%" type="number" min="0"></v-text-field>
                       <v-text-field label="Recapture Tax Rate" v-model="project.taxes.recapture_tax_rate" suffix="%" type="number" min="0"></v-text-field>
                     </template>
                   </v-card>
@@ -2317,21 +2334,86 @@ body {
               </v-row>
             </v-expansion-panel-text>
           </v-expansion-panel>
+          <v-expansion-panel id="panel_5">
+            <v-expansion-panel-title>
+              Import/Export
+            </v-expansion-panel-title>
+            <v-expansion-panel-text>
+              <v-row>
+                <v-col cols="12" >
+                  The JSON code below is a dynamic representation of the project. 
+                  It updates automatically as you fill in the project inputs above. 
+                  Similarly, the project itself updates as you edit the code. 
+                  This allows you to directly paste output from LLMs here or simply store it in a text file.
+                </v-col>
+                <v-col cols="12" >
+                  <v-textarea
+                    id="project-code"
+                    label="Project code"
+                    v-model="project_code"
+                    name="project_code"
+                    variant="filled"
+                    auto-grow
+                  ></v-textarea>
+                </v-col>
+              </v-row>
+            </v-expansion-panel-text>
+          </v-expansion-panel>
         </v-expansion-panels>
   </v-container>
       <v-container id="results-container" v-if="has_results">
-        <!-- <v-row id="panel_6">
-          <v-col>
-            <h3>Results</h3>
+        <v-row id="panel_6">
+          <v-col cols="12">
+            <v-card variant="text">
+              <template v-slot:text>
+                <h1 id="property-title"> {{ project.property.name }}</h1>
+              </template>
+            </v-card>
           </v-col>
-        </v-row> -->
-        <v-row id="panel_5">
+        </v-row>  
+
+  
+        <v-row id="panel_6">
+          <v-col cols="12" md="4">
+            <v-card variant="text">
+              <template v-slot:title>
+                Summary
+              </template>
+              <template v-slot:text>
+                <div id="description-property"></div>
+              </template>
+            </v-card>
+          </v-col>
+          <v-col cols="12" md="8">
+            <v-card variant="text">
+              <template v-slot:title>
+                Discounted Cash Flow
+              </template>
+              <template v-slot:text>
+                <div id="results-property"></div>
+              </template>
+            </v-card>
+          </v-col>
+        </v-row>
+        <v-row >
           <v-col cols="12" md="4">
             <v-card variant="text">
               <template v-slot:title>
                 Inflation
               </template>
               <template v-slot:text>
+                <v-slider
+                  class="no-print"
+                  v-model="project.model.inflation.initial"
+                  :max="30"
+                  :min="0"
+                  density="compact"
+                  track-size="2"
+                  thumb-size="14"
+                  thumb-label
+                  v-on:end="on_change_inflation"
+                ></v-slider>
+                <!-- <div class="text-caption"> Set fixed inflation </div> -->
                 <div id="results-inflation"></div>
               </template>
             </v-card>
@@ -2342,6 +2424,18 @@ body {
                 Economic Growth
               </template>
               <template v-slot:text>
+                <v-slider
+                  class="no-print"
+                  v-model="project.model.economic_growth.initial"
+                  :max="30"
+                  :min="0"
+                  density="compact"
+                  track-size="2"
+                  thumb-size="14"
+                  thumb-label
+                  v-on:end="on_change_economic_growth"
+                ></v-slider>
+                <!-- <div class="text-caption"> Set fixed economic growth </div> -->
                 <div id="results-economic-growth"></div>
               </template>
             </v-card>
@@ -2352,6 +2446,18 @@ body {
                 Discount Rate
               </template>
               <template v-slot:text>
+                <v-slider
+                  class="no-print"
+                  v-model="project.model.discount_rate.initial"
+                  :max="30"
+                  :min="0"
+                  density="compact"
+                  track-size="2"
+                  thumb-size="14"
+                  thumb-label
+                  v-on:end="on_change_discount_rate"
+                ></v-slider>
+                <!-- <div class="text-caption"> Set fixed discount rate </div> -->
                 <div id="results-discount-rate"></div>
               </template>
             </v-card>
@@ -2383,7 +2489,7 @@ body {
           <v-col cols="12">
             <v-card variant="text">
               <template v-slot:title>
-                Incomes, Expenses and Debt
+                Incomes and Expenses
               </template>
               <template v-slot:text>
                 <div id="results-ie"></div>
@@ -2454,7 +2560,7 @@ body {
                 Before Tax IRR <span style="font-weight: 200;">(annual)</span>
               </template>
               <template v-slot:text>
-                <div id="results-btirr"></div>
+                <div id="results-btirr" style="position: relative;"></div>
               </template>
             </v-card>
           </v-col>
@@ -2464,7 +2570,7 @@ body {
                 After Tax IRR <span style="font-weight: 200;">(annual)</span>
               </template>
               <template v-slot:text>
-                <div id="results-atirr"></div>
+                <div id="results-atirr" style="position: relative;"></div>
               </template>
             </v-card>
           </v-col>
@@ -2733,6 +2839,101 @@ function aggregate_samples(data) {
   return aggregated;
 }
 
+function describe_property(project, results) {
+  const { model, property } = project;
+  let description = '';
+  // description += `<h1>${property.name}</h1>`
+  // Property name and holding period
+  description += `<h2 style="font-size: 22px;font-weight: 900;"><span style="background: black; color: white; padding: 2px 10px; font-weight: 900;">NPV</span> ${results.npv}</h2>`;
+  description += `<h2 style="font-size: 22px;font-weight: 900;"><span style="background: black; color: white; padding: 2px 10px; font-weight: 900;">IRR</span> ${results.irr}%</h2>`;
+  description += `<p style="margin-top: 10px; font-size: 12px; padding-right: 20px;">`
+  description += `${property.name} is a property held for <strong>${model.steps} ${model.interval.toLowerCase()}s</strong>. `;
+
+  // Debt details
+  if (property.debt && property.debt.amount > 0) {
+    description += `It is financed with a debt of $${Number(property.debt.amount).toLocaleString()} over ${property.debt.term} year${property.debt.term > 1 ? 's' : ''} at an interest rate of ${property.debt.rate}%. `;
+  } else {
+    description += `It is purchased without external financing. `;
+  }
+
+  // Purchase and Sale information
+  description += `The property was purchased for $${Number(property.purchase.price).toLocaleString()} plus costs of $${Number(property.purchase.costs).toLocaleString()}, and it is projected to sell for $${Number(property.sale.price).toLocaleString()} with sale costs of $${Number(property.sale.costs).toLocaleString()}. `;
+
+  // Simulation model details
+  description += `The ${model.samples > 1 ? 'Monte Carlo ' : ''}simulation runs for ${model.steps} ${model.interval.toLowerCase()} step${model.steps > 1 ? 's' : ''} using ${model.samples} sample${model.samples !== 1 ? 's' : ''}. `;
+
+  // Economic growth description
+  if (model.economic_growth && model.economic_growth.active) {
+    description += `Economic growth is modeled using a ${model.economic_growth.type.toLowerCase()} approach starting at ${model.economic_growth.initial.toFixed(2)}%. `;
+  } else {
+    description += `Economic growth is not explicitly modeled. `;
+  }
+
+  // Inflation description
+  if (model.inflation && model.inflation.active) {
+    description += `Inflation is active and is modeled as ${model.inflation.type.toLowerCase()} with an initial rate of ${model.inflation.initial.toFixed(2)}%. `;
+  } else {
+    description += `Inflation is not factored into this simulation. `;
+  }
+
+  // Discount rate description
+  description += `The discount rate is set at ${model.discount_rate.initial.toFixed(2)}% using a ${model.discount_rate.type.toLowerCase()} approach.`;
+  description += `</p>`;
+  return description;
+}
+
+function describe_debt_balance(project, results_data_aggregated) {
+  // Get the initial debt amount
+  const initial_debt = parseFloat(project.property.debt.amount)
+  const purchase_price = parseFloat(project.property.purchase.price)
+  // Calculate the debt-to-purchase price ratio (in percentage)
+  const debt_ratio = purchase_price > 0 ? (initial_debt / purchase_price) * 100 : 0;
+  // Get the last simulated debt balance from aggregated results
+  const last_debt_balance = results_data_aggregated[results_data_aggregated.length - 1]['debt_balance']
+
+  let description = ''
+
+  if (initial_debt > 0) {
+    description = `<p style="margin-top: 10px; font-size: 12px; padding-right: 20px;">
+      The property was initially financed with a debt of <strong>$${Number(initial_debt).toLocaleString()}</strong>, which represents approximately <strong>${debt_ratio.toFixed(2)}%</strong> of the purchase price of $${Number(purchase_price).toLocaleString()}. 
+      According to the simulation, the debt balance has decreased to <strong>$${Number(last_debt_balance).toLocaleString()}</strong> by the end of the holding period.
+    </p>`
+  } else {
+    description = `<p style="margin-top: 10px; font-size: 12px; padding-right: 20px;">
+      The property was purchased without external financing. 
+      The debt balance remains at <strong>$${Number(last_debt_balance).toLocaleString()}</strong> by the end of the holding period.
+    </p>`
+  }
+
+  return description;
+}
+
+function describe_debt_service(results_data_aggregated) {
+  // Calculate the ratio (debt_paid / net_operating_income) for each entry.
+  const ratios = results_data_aggregated.map(x => {
+    const noi = parseFloat(x['net_operating_income']);
+    // Avoid division by zero; if net operating income is zero, treat ratio as zero.
+    return noi > 0 ? (parseFloat(x['debt_paid']) / noi) * 100 : 0;
+  });
+  // Compute the average ratio using the mean function.
+  const ratio_avg = mean(ratios);
+
+  // Optionally, compute the average debt_paid and net_operating_income for reference.
+  const debt_service = parseFloat(results_data_aggregated[0]['debt_paid'])
+  const noi_avg = mean(results_data_aggregated.map(x => parseFloat(x['net_operating_income'])))
+
+  let description = `<p style="margin-top: 10px; font-size: 12px; padding-right: 20px;">`
+  description += `Across the simulation, the periodic debt service payment was <strong>$${Number(debt_service).toLocaleString()}</strong>`
+  if (noi_avg > 0) {
+    description += `, which represents approximately <strong>${ratio_avg.toFixed(2)}%</strong> of the average net operating income of $${Number(noi_avg).toLocaleString()}. `
+  } else {
+    description += `. As the net operating income is reported as <strong>$${Number(noi_avg).toLocaleString()}</strong>, the ratio is not available. `
+  }
+  description += `</p>`
+
+  return description;
+}
+
 // Example usage:
 // console.log("Sample from Student-t:", student_t(0, 1, 10));
 
@@ -2749,6 +2950,7 @@ export default {
       drawer: true,
       has_results: false,
       project: null,
+      project_code: '',
       discrete_occupancy: true,
       first_run: true,
       results: {
@@ -2791,8 +2993,9 @@ export default {
         { code: 'AU', name: 'Australia' },
         { code: 'DE', name: 'Germany' },
       ],
-      incomeExpanded: [],
-      expensesExpanded: [],
+      income_expanded: [],
+      expenses_expanded: [],
+      capex_expanded: [],
     }
   },
   computed: {
@@ -2846,7 +3049,7 @@ export default {
       sources.push('Net Operating Income')
       return sources
     }
-    // incomeExpanded() {
+    // income_expanded() {
     //   // Return array of income indices that contain item.growth === true
     //   return this.project.income.items.map((item, index) => {
     //     if (item.growth) return index
@@ -2910,7 +3113,7 @@ export default {
         el.style.top = `${shift}px`
       }
     },
-    addRow(table) {
+    add_row(table) {
       const id = this.project[table].items.length + 1
       const newRow = {
         id: id,
@@ -2952,7 +3155,7 @@ export default {
       }
       this.project[table].items.push(newRow)
     },
-    toggleView(table) {
+    toggle_view(table) {
       console.log('Toggling view...')
       this.mobile = !this.mobile
     },
@@ -3012,12 +3215,17 @@ export default {
       const debt_rate_per_debt_interval = parseFloat(this.project.property.debt.rate) / (100 * debt_frequency)
       const debt_periods = parseInt(this.project.property.debt.term) * debt_frequency
       const debt_amount = parseFloat(this.project.property.debt.amount)
-      const debt_service_per_debt_interval = -PMT(
-        debt_rate_per_debt_interval,
-        debt_periods,
-        debt_amount
-      )
+      const debt_service_per_debt_interval = debt_amount > 0
+        ? -PMT(
+          debt_rate_per_debt_interval,
+          debt_periods,
+          debt_amount
+        )
+        : 0
       console.log(`PMT(rate=${debt_rate_per_debt_interval}, periods=${debt_periods}, present=${debt_amount}) = ${debt_service_per_debt_interval}`)
+      console.log('Debt service per debt interval:', debt_service_per_debt_interval, typeof debt_service_per_debt_interval)
+      console.log('Debt interaval:', debt_interval, typeof debt_interval)
+      console.log('Model interval:', model_interval, typeof model_interval)
       const debt_service_per_model_interval = (debt_interval < model_interval)
         ? debt_service_per_debt_interval * model_interval / debt_interval
         : debt_service_per_debt_interval
@@ -3030,7 +3238,7 @@ export default {
 
       const sale_price = parseFloat(this.project.property.sale.price)
       const sale_costs = parseFloat(this.project.property.sale.costs)
-      const netSale = sale_price - sale_costs
+      const net_sale = sale_price - sale_costs
 
       // Depreciation
       const depreciation_rate = parseFloat(this.project.taxes.depreciation.amount) / 100
@@ -3047,8 +3255,10 @@ export default {
 
       let btirr_samples = []
       let atirr_samples = []
+      let pbtirr_samples = []
       let patirr_samples = []
       let npv_samples = []
+      let total_tax_samples = []
 
       for (let sample = 0; sample < parseInt(this.project.model.samples); sample++) {
 
@@ -3428,46 +3638,58 @@ export default {
 
         // Buy/Selling
         const debt_balance_final = debt_balance_new
-        const before_tax_equity_reversion = netSale - debt_balance_final
+        const before_tax_equity_reversion = net_sale - debt_balance_final
 
         const depreciation_gain = depreciation_per_model_interval * model_steps
         const capital_gain = sale_price - purchase_price - purchase_costs - sale_costs
 
         const depreciation_tax = depreciation_gain * (parseFloat(this.project.taxes.recapture_tax_rate) / 100)
-        const capital_gain_tax = capital_gain * (parseFloat(this.project.taxes.capital_gains_tax_tate) / 100)
-        const totalTax = depreciation_tax + capital_gain_tax
+        const capital_gain_tax = capital_gain * (parseFloat(this.project.taxes.capital_gains_tax_rate) / 100)
+        const total_tax = depreciation_tax + capital_gain_tax
+        total_tax_samples.push(total_tax)
 
-        const after_tax_equity_reversion = before_tax_equity_reversion - totalTax 
+        const after_tax_equity_reversion = before_tax_equity_reversion - total_tax 
 
         // btcfs[-1] = btcfs[-1] + before_tax_equity_reversion
         btcfs = [-initial_equity, ...btcfs]
         btcfs[btcfs.length - 1] += before_tax_equity_reversion
         const btirr_per_model_interval = IRR(btcfs)
         const btirr_per_year = Math.pow(1 + btirr_per_model_interval, model_frequency) - 1 // annualize
+        btirr_samples.push(btirr_per_year * 100)
         print('BTCF:', btcfs)
         print('BTIRR:', btirr_per_model_interval)
         print('BTIRR:', btirr_per_year)
-        btirr_samples.push(btirr_per_year * 100)
 
         atcfs = [-initial_equity, ...atcfs]
         atcfs[atcfs.length - 1] += after_tax_equity_reversion
         const atirr_per_model_interval = IRR(atcfs)
         const atirr_per_year = Math.pow(1 + atirr_per_model_interval, model_frequency) - 1 // annualize
+        atirr_samples.push(atirr_per_year * 100)
         print('ATCF:', atcfs)
         print('ATIRR:', atirr_per_model_interval)
         print('ATIRR:', atirr_per_year)
-        atirr_samples.push(atirr_per_year * 100)
+
+        pbtcfs = [-initial_equity, ...pbtcfs]
+        pbtcfs[pbtcfs.length - 1] += before_tax_equity_reversion
+        const pbtirr_per_model_interval = IRR(pbtcfs)
+        const pbtirr_per_year = Math.pow(1 + pbtirr_per_model_interval, model_frequency) - 1 // annualize
+        pbtirr_samples.push(pbtirr_per_year * 100)
+        print('PBTCF:', pbtcfs)
+        print('PBTIRR:', pbtirr_per_model_interval)
+        print('PBTIRR:', pbtirr_per_year)
+
 
         patcfs = [-initial_equity, ...patcfs]
         patcfs[patcfs.length - 1] += after_tax_equity_reversion
         const patirr_per_model_interval = IRR(patcfs)
         const patirr_per_year = Math.pow(1 + patirr_per_model_interval, model_frequency) - 1 // annualize
+        patirr_samples.push(patirr_per_year * 100)
         print('PATCF:', patcfs)
         print('PATIRR:', patirr_per_model_interval)
         print('PATIRR:', patirr_per_year)
+
         const npv = NPV(patcfs, discount_rates)
         print('NPV:', npv, patcfs, discount_rates)
-        patirr_samples.push(patirr_per_year * 100)
         npv_samples.push(npv)
       } // --> sample loop
 
@@ -3487,9 +3709,182 @@ export default {
 
       this.$nextTick(() => {
         console.log('Start visualization:', new Date())
+        const description_property = describe_property(this.project, this.results)
+        document.getElementById('description-property').innerHTML = description_property
+        // const property_data = [
+        //   { text: 'Debt', value: parseFloat(this.project.property.debt.amount) },
+        //   { text: 'Purchase Price', value: purchase_price },
+        //   { text: 'Sale Price', value: sale_price }
+        // ]
+        // property_data.forEach(d => {
+        //   d.start = d.value > 0 ? d.value - purchase_price * 0.0075 : d.value
+        //   d.end = d.value
+        // })
+        // const property_max = Math.max(purchase_price, debt_amount, sale_price)
+        // const property_plot = Plot.plot({
+        //   marginLeft: 100,
+        //   x: {
+        //     domain: [0, property_max],
+        //     label: "Amount ($)"
+        //   },
+        //   y: {label: null},
+        //   marks: [
+        //     // Plot.barX(property_data, Plot.stackX({x: "value", fillOpacity: 0.3, inset: 0.5})),
+        //     // Plot.textX(property_data, Plot.stackX({x: "value", text: "text", inset: 0.5})),
+        //     Plot.barX(property_data, {y: "text", x: "value", inset: 0.5, fill: "#ddd", opacity: 0.5}),
+        //     Plot.barX(property_data, {
+        //       y: "text", 
+        //       x1: "start",
+        //       x2: "end",
+        //       inset: 0.5, fill: "black", opacity: 1
+        //     }),
+        //     Plot.ruleX([0])
+        //     // Plot.ruleX([0, 1])
+        //   ]
+
+        const property_data = []
+        let p = 0
+        let p_new = 0
+        let i = 0
+        p = -(purchase_price + purchase_costs)
+        property_data.push({ i: i, text: 'Purchase', d: '▼', start: 0, end: p, value: p })
+        p_new = p + debt_amount
+        i += 1
+        property_data.push({ i: i, text: 'Debt', start: p, d: '▲', end: p_new, value: debt_amount })
+        p = p_new
+
+        results_data_aggregated.forEach(d => {
+          // Income
+          i += 1
+          let v = d.effective_gross_income_per_model_interval
+          v = v / Math.pow(1 + d.discount_rate / 100, d.step)
+          p_new = p + v
+          property_data.push({
+            i: i,
+            text: `${this.project.model.interval} ${d.step}`, 
+            d: '▲',
+            dy: -2,
+            start: p,
+            end: p_new,
+            value: d.effective_gross_income
+          })
+          p = p_new
+          // Expenses
+          i += 1
+          v = d.expenses_per_model_interval + d.capex_per_model_interval - d.debt_paid - d.taxes
+          v = v / Math.pow(1 + d.discount_rate / 100, d.step)
+          // Apply the discount rate
+          p_new = p + v
+          property_data.push({
+            i: i,
+            text: `${this.project.model.interval} ${d.step}`, 
+            d: '▼', 
+            dy: 2,
+            start: p,
+            end: p_new,
+            value: d.expenses 
+          })
+          p = p_new
+          // Capex
+          // i += 1
+          // p_new = p + d.capex_per_model_interval
+          // property_data.push({
+          //   i: i,
+          //   text: `${this.project.model.interval} ${d.step}`, 
+          //   start: p,
+          //   end: p_new,
+          //   value: d.capex 
+          // })
+          // p = p_new
+          // // Debt
+          // // i += 1
+          // p_new = p - d.debt_paid
+          // property_data.push({
+          //   i: i,
+          //   text: `${this.project.model.interval} ${d.step}`, 
+          //   start: p,
+          //   end: p_new,
+          //   value: d.debt_paid 
+          // })
+          // p = p_new
+        })
+
+        let discount_rate = results_data_aggregated[results_data_aggregated.length - 1].discount_rate
+
+        i += 1
+        let v = sale_price - sale_costs
+        v = v / Math.pow(1 + discount_rate / 100, model_steps)
+        p_new = p + v
+        property_data.push({ i: i, text: 'Sale', d: '▲', dy: -1, start: p, end: p_new, value: sale_price })
+        p = p_new
+
+        i += 1
+        v = results_data_aggregated[results_data_aggregated.length - 1].debt_balance
+        v = v / Math.pow(1 + discount_rate / 100, model_steps)
+        p_new = p - v
+        property_data.push({ i: i, text: 'Debt', d: '▼', dy: 2, start: p, end: p_new, value: results_data_aggregated[results_data_aggregated.length - 1].debt_balance })
+        p = p_new
+
+        i += 1
+        v = mean(total_tax_samples)
+        v = v / Math.pow(1 + discount_rate / 100, model_steps)
+        p_new = p - v
+        property_data.push({ i: i, text: 'Tax', d: '▼', dy: 2, start: p, end: p_new, value: results_data_aggregated[results_data_aggregated.length - 1].debt_balance })
+        p = p_new
+
+        const property_plot = Plot.plot({
+          width: 800,
+          height: 400,
+          marginLeft: 80,
+          marginBottom: 100,
+          x: {
+            // domain: [0, property_max],
+            label: null,
+            tickFormat: d => property_data[d].text,
+            tickRotate: -90
+          },
+          y: {
+            label: null,
+            grid: true,
+            domain: [
+              1.1 * Math.min(...property_data.map(x => Math.min(x.start, x.end))),
+              1.1 * Math.max(...property_data.map(x => Math.max(x.start, x.end)))
+            ]
+          },
+          marks: [
+            Plot.barY(property_data, {x: "i", label: "text", y1: "start", y2: "end", sort: null, fill: "#ddd", opacity: 0.5}),
+            Plot.tickY(property_data, {x: "i", label: "text", y: "end", sort: null, inset: 0.5}),
+            Plot.ruleY([0], {stroke: "black", strokeWidth: 1, opacity: 0.3}),
+            Plot.ruleY([mean(npv_samples)], {stroke: "black", strokeWidth: 1, opacity: 0.5, strokeDasharray: "2,2"}),
+            Plot.text([[1, mean(npv_samples)]], {text: [`NPV: ${Number(mean(npv_samples)).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })}`], textAnchor: "start", fontSize: 10, dx: 0, dy: 10}),
+            Plot.text(property_data.filter(v => v.start > v.end), {x: "i", y: "end", text: "d", textAnchor: "middle", fontSize: 6, dy: -5}),
+            Plot.text(property_data.filter(v => v.start < v.end), {x: "i", y: "end", text: "d", textAnchor: "middle", fontSize: 6, dy: 5}),
+          ]
+        })
+        const property_results = document.getElementById('results-property')
+        if (property_results) {
+          property_results.innerHTML = ''
+          property_results.appendChild(property_plot)
+        }
+
         const opacity = parseInt(this.project.model.samples) > 1 ? 0.1 : 1;
 
         // Vis: Economic growth
+        let growth_all_min = Math.min(
+          0,
+          Math.min(...results_data.map(x => x.economic_growth)),
+          Math.min(...results_data.map(x => x.inflation)),
+          Math.min(...results_data.map(x => x.discount_rate))
+        )
+        let growth_all_max = Math.max(
+          0,
+          Math.max(...results_data.map(x => x.economic_growth)),
+          Math.max(...results_data.map(x => x.inflation)),
+          Math.max(...results_data.map(x => x.discount_rate))
+        )
+        growth_all_max += (growth_all_max - growth_all_min) * 0.1
+        growth_all_min -= (growth_all_max - growth_all_min) * 0.1
+
         const economic_growth_plot = Plot.plot({
           grid: true,
           width: 400,
@@ -3498,23 +3893,26 @@ export default {
             label: this.project.model.interval,
             domain: [1, model_steps - 1]
           },
-          y: { label: "Economic Growth" },
+          y: { 
+            label: "Economic Growth",
+            domain: [growth_all_min, growth_all_max]
+          },
           marks: [
             Plot.line(results_data.filter(x => x.step < model_steps), {
               x: "step",
               y: "economic_growth",
               z: "sample",
               opacity
-             }),
-             Plot.line(results_data_aggregated.filter(x => x.step < model_steps), {
+            }),
+            Plot.line(results_data_aggregated.filter(x => x.step < model_steps), {
               x: "step",
               y: "economic_growth",
               opacity: 1,
               stroke: "black",
               strokeDasharray: "4,4"
-             }),
-             Plot.crosshairX(results_data, {x: "step", y: "economic_growth"}),
-             Plot.ruleY([0])
+            }),
+            Plot.crosshairX(results_data, {x: "step", y: "economic_growth"}),
+            Plot.ruleY([0], {stroke: "black", strokeWidth: 1, opacity: 0.3}),
           ]
         })
         const economic_growth_results = document.getElementById('results-economic-growth')
@@ -3532,7 +3930,10 @@ export default {
             label: this.project.model.interval,
             domain: [1, model_steps - 1]
           },
-          y: { label: "Inflation" },
+          y: { 
+            label: "Inflation", 
+            domain: [growth_all_min, growth_all_max]
+          },
           marks: [
             Plot.line(results_data.filter(x => x.step < model_steps), { 
               x: "step",
@@ -3548,7 +3949,7 @@ export default {
               strokeDasharray: "4,4"
             }),
             Plot.crosshairX(results_data, {x: "step", y: "inflation"}),
-            Plot.ruleY([0])
+            Plot.ruleY([0], {stroke: "black", strokeWidth: 1, opacity: 0.3}),
           ]
         })
         const inflationResults = document.getElementById('results-inflation')
@@ -3563,7 +3964,10 @@ export default {
           width: 400,
           height: 200,
           x: { label: this.project.model.interval },
-          y: { label: "Discount Rate" },
+          y: { 
+            label: "Discount Rate",
+            domain: [growth_all_min, growth_all_max]
+          },
           marks: [
             Plot.line(results_data, {
               x: "step",
@@ -3578,7 +3982,8 @@ export default {
               stroke: "black",
               strokeDasharray: "4,4"
             }),
-            Plot.crosshairX(results_data, {x: "step", y: "discount_rate"})
+            Plot.crosshairX(results_data, {x: "step", y: "discount_rate"}),
+            Plot.ruleY([0], {stroke: "black", strokeWidth: 1, opacity: 0.3})
           ]
         })
         const discount_rate_results = document.getElementById('results-discount-rate')
@@ -3599,7 +4004,7 @@ export default {
           },
           y: { 
             label: "Debt Balance",
-            domain: [0, parseFloat(this.project.property.debt.amount) * 1.05]
+            domain: [0, purchase_price + purchase_costs]
           },
           marks: [
             Plot.areaY(
@@ -3612,15 +4017,33 @@ export default {
               // z: "sample",
               opacity: 1
             }),
-            Plot.text([[1, 1.1 * debt_amount]], {text: [`Initial debt balance: $${(debt_amount).toFixed(2)}`], textAnchor: "start", dx: 16}),
-            Plot.ruleY([0]),
-            // Plot.dot(results_data, { x: "month", y: "debt_balance", z: "sample" })
+            Plot.text(
+              [[1, Math.max(0.05 * purchase_price, 1.07 * debt_amount)]], 
+              {
+                text: [`Initial debt balance: ${(debt_amount).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })}`], 
+                textAnchor: "start", 
+                dx: 16
+              }
+            ),
+            Plot.text(
+              [[1, 1.07 * purchase_price]], 
+              {
+                text: [`Purchase price: ${(purchase_price).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })}`], 
+                textAnchor: "start", 
+                dx: 16
+              }
+            ),
+            Plot.ruleY([debt_amount], {stroke: "black", strokeDasharray: "2,2", opacity: 0.5}),
+            Plot.ruleY([purchase_price + purchase_costs], {stroke: "black", strokeDasharray: "2,2", opacity: 0.5}),
+            Plot.ruleY([0], {stroke: "black", strokeWidth: 1, opacity: 0.3}),
           ]
         })
         const debt_balance_results = document.getElementById('results-debt-balance')
+        const debt_balance_description = describe_debt_balance(this.project, results_data_aggregated)
         if (debt_balance_results) {
           debt_balance_results.innerHTML = ''
           debt_balance_results.appendChild(debt_balance_plot)
+          debt_balance_results.innerHTML += debt_balance_description
         }
 
         // Now, create the stacked area chart:
@@ -3643,6 +4066,16 @@ export default {
           marks: [
             Plot.line(results_data_first, {
               x: "step",
+              y: "net_operating_income",
+              opacity: 1,
+              strokeWidth: 1,
+              stroke: "black",
+              strokeDasharray: "2,2",
+              opacity: 0.5,
+              marker: true,
+            }),
+            Plot.line(results_data_first, {
+              x: "step",
               y: "debt_paid",
               opacity: 1,
               stroke: "black",
@@ -3655,29 +4088,65 @@ export default {
             Plot.line(results_data_first, {
               x: "step",
               y: "debt_interest_paid",
-              opacity: 0.5,
+              opacity: 0.3,
               stroke: "black",
-              strokeDasharray: "2,2",
+              // strokeDasharray: "2,2",
               strokeWidth: 1
             }),
+            Plot.areaY(
+              results_data_first,
+              {x: "step", y: "debt_interest_paid", fill: "#ddd", opacity: 0.5}
+            ),
             // Plot.areaY(
             //   results_data_first,
             //   {x: "step", y: "debt_interest_paid", fill: "#ccc", opacity: 0.5}
             // ),
-            Plot.text([[1, debt_service_per_model_interval + 0.1 * debt_service_per_model_interval]], {text: [`${this.project.model.interval}ly debt service: $${(debt_service_per_model_interval).toFixed(2)} ↴ `], textAnchor: "start", dx: 16}),
-            Plot.text([[1, results_data_first[0]['debt_interest_paid'] + results_data_first[0]['debt_principal_paid'] / 2]], {text: ["· Principal"], textAnchor: "start", dx: 16}),
-            Plot.text([[1, results_data_first[0]['debt_interest_paid'] / 2]], {text: ["· Interest"], textAnchor: "start", dx: 16}),
-            Plot.ruleY([0]),
+            Plot.text(
+              [[1, 1.1 * results_data_aggregated[0]['net_operating_income']]], 
+              {
+                text: ['NOI'],
+                textAnchor: "start", 
+                dx: 16
+              }
+            ),
+            Plot.text(
+              [[1, debt_service_per_model_interval + Math.max(0.05 * Math.max(...results_data_aggregated.map(x => x['net_operating_income'])), 0.07 * debt_service_per_model_interval)]], 
+              {
+                text: [`${this.project.model.interval}ly debt service: $${(debt_service_per_model_interval).toFixed(2)}`], 
+                textAnchor: "start", 
+                dx: 16
+              }
+            ),
+            Plot.text(
+              [[1, results_data_first[0]['debt_interest_paid'] + results_data_first[0]['debt_principal_paid'] / 2]], 
+              {
+                text: [debt_service_per_model_interval > 0 ? '· Principal' : ''],
+                textAnchor: "start", 
+                dx: 16
+              }
+            ),
+            Plot.text(
+              [[1, results_data_first[0]['debt_interest_paid'] / 2]], 
+              {
+                text: [debt_service_per_model_interval > 0 ? '· Interest' : ''],
+                textAnchor: "start",
+                dx: 16
+              }
+            ),
             Plot.crosshairX(results_data_first, {x: "step", y: "debt_interest_paid"}),
+            Plot.ruleY([0], {stroke: "black", strokeWidth: 1, opacity: 0.3}),
           ],
         });
         const debt_service_results = document.getElementById('results-debt-service')
+        const debt_service_description = describe_debt_service(results_data_aggregated)
         if (debt_service_results) {
           debt_service_results.innerHTML = ''
           debt_service_results.appendChild(debt_service_plot)
+          debt_service_results.innerHTML += debt_service_description
         }
 
         const d = Math.max(effective_gross_income_max, expenses_max, debt_service_per_model_interval) * 1.1
+        console.log('D:', d, effective_gross_income_max, expenses_max, debt_service_per_model_interval, results_data, results_data_aggregated)
 
         const iePlot = Plot.plot({
           grid: true,
@@ -3698,13 +4167,24 @@ export default {
             // Plot.boxY(results_data, {x: "month", y: "effective_gross_income_per_model_interval", stroke: "green", title: "Effective Gross Income"}),
             Plot.boxY(results_data, {x: "step", y: "effective_gross_income_per_model_interval", title: "Effective Gross Income", r: 0}),
             Plot.boxY(results_data, {x: "step", y: "expenses_per_model_interval", title: "Effective Gross Income", r: 0}),
-            // Plot.line(results_data_aggregated, {x: "step", y: "net_operating_income", stroke: "black", opacity: 1, strokeDasharray: "4,4"}),
+            Plot.line(
+              results_data_aggregated, {
+                x: "step",
+                y: "net_operating_income",
+                stroke: "black",
+                strokeWidth:1,
+                strokeDasharray: "2,2",
+                marker: true,
+                opacity: 0.5,
+              }),
             // Plot.ruleY(results_data_first.map(x => ({step: x.step, debt_paid: -x.debt_paid})), {x: "step", y: "debt_paid", stroke: "black", strokeDasharray: "2,2", title: "Monthly Debt Service"}),
             // Plot.areaY(results_data_first.map(x => ({step: x.step, debt_paid: -x.debt_paid})), {x: "step", y: "debt_paid", fill: "#ddd", opacity: 0.5}),
             Plot.crosshairX(results_data, {x: "step", y: "effective_gross_income_per_model_interval"}),
             Plot.crosshairX(results_data, {x: "step", y: "expenses_per_model_interval"}),
-            Plot.text([[1, d * 0.8]], {text: ["▲ Income "], textAnchor: "start", dx: 16}),
-            Plot.text([[1, -d * 0.8]], {text: ["▼ Expenses "], textAnchor: "start", dx: 16}),
+            Plot.crosshairX(results_data_aggregated, {x: "step", y: "net_operating_income"}),
+            Plot.text([[1, d * 0.8]], {text: ["▲ Income "], textAnchor: "start", dx: 0}),
+            Plot.text([[1, -d * 0.8]], {text: ["▼ Expenses "], textAnchor: "start", dx: 0}),
+            Plot.text([[1, 0.8 * results_data_aggregated[0]['net_operating_income']]], {text: ["NOI"], textAnchor: "start", dx: 0}),
             // Plot.boxY(results_data, {x: "month", y: "effective_gross_income_per_model_interval", color: "green", opacity: 0.5, title: "Effective Gross Income"}),
             // Plot.boxY(results_data, {x: "month", y: "expenses_per_model_interval", color: "red", opacity: 0.5, title: "Expenses"}),
             // add red scatter expenses
@@ -3926,20 +4406,47 @@ export default {
 
         // Plot.rectY({length: 10000}, Plot.binX({y: "count"}, {x: d3.randomNormal()})).plot()
 
-        let minIrr = Math.min(...btirr_samples, ...atirr_samples)
-        let maxIrr = Math.max(...btirr_samples, ...atirr_samples)
+        let minIrr = Math.min(...pbtirr_samples, ...patirr_samples)
+        let maxIrr = Math.max(...pbtirr_samples, ...patirr_samples)
 
         const btirrPlot = Plot.plot({
           width: 500,
-          height: 300,
-          x: { label: "BTIRR, %" },
+          height: 200,
+          x: { label: "BTIRR, %", domain: [minIrr*0.9, maxIrr*1.1] },
           y: { label: "_", grid: true, axis: false },
           marks: [
-            Plot.rectY(
-              btirr_samples.map((d, i) => ({sample: i, irr: d})), 
-              Plot.binX({y: "count"}, {x: 'irr', thresholds: 30, opacity: 0.5})
+            // Plot.rectY(
+            //   pbtirr_samples.map((d, i) => ({sample: i, irr: d})), 
+            //   Plot.binX({y: "count"}, {x: 'irr', thresholds: 30, opacity: 0.3})
+            // ),
+            Plot.areaY(
+              pbtirr_samples.map((d, i) => ({sample: i, irr: d})),
+              Plot.binX(
+                { y: "count", filter: null }, // using y2 to avoid areaY’s implicit stacking
+                {
+                  x: 'irr',
+                  fill: "#ccc",
+                  fillOpacity: 0.3,
+                  thresholds: 10,
+                  curve: "natural"
+                }
+              )
             ),
-            Plot.ruleX([mean(btirr_samples)], {stroke: "black", strokeDasharray: "2,2"}),
+            Plot.lineY(
+              pbtirr_samples.map((d, i) => ({sample: i, irr: d})),
+              Plot.binX(
+                { y: "count", filter: null },
+                {
+                  x: 'irr',
+                  stroke: "black",
+                  opacity: 0.3,
+                  strokeWidth: 1,
+                  thresholds: 10,
+                  curve: "natural"
+                }
+              )
+            ),
+            Plot.ruleX([mean(pbtirr_samples)], {stroke: "black", strokeDasharray: "2,2"}),
             Plot.ruleY([0], {opacity: 0.5}),
           ]
         })
@@ -3947,26 +4454,57 @@ export default {
         if (btirrResults) {
           btirrResults.innerHTML = ''
           btirrResults.appendChild(btirrPlot)
+          btirrResults.innerHTML += `<h2 style="position: absolute; top: 0; left: 10px; font-size: 36px;">${mean(pbtirr_samples).toFixed(2)}%</h2>`
         }
 
         const atirrPlot = Plot.plot({
           width: 500,
-          height: 300,
-          x: { label: "ATIRR, %" },
+          height: 200,
+          x: { label: "ATIRR, %", domain: [minIrr*0.9, maxIrr*1.1] },
           y: { label: "_", grid: true, axis: false },
           marks: [
-            Plot.rectY(
-              atirr_samples.map((d, i) => ({sample: i, irr: d})), 
-              Plot.binX({y: "count"}, {x: 'irr', thresholds: 30, opacity: 0.5})
+            // Plot.rectY(
+            //   patirr_samples.map((d, i) => ({sample: i, irr: d})), 
+            //   Plot.binX({y: "count"}, {x: 'irr', thresholds: 30, opacity: 0.3})
+            // ),
+            Plot.areaY(
+              patirr_samples.map((d, i) => ({sample: i, irr: d})),
+              Plot.binX(
+                { y: "count", filter: null }, // using y2 to avoid areaY’s implicit stacking
+                {
+                  x: 'irr',
+                  fill: "#ccc",
+                  fillOpacity: 0.3,
+                  thresholds: 10,
+                  curve: "natural"
+                }
+              )
             ),
-            Plot.ruleX([mean(atirr_samples)], {stroke: "black", strokeDasharray: "2,2"}),
+            Plot.lineY(
+              patirr_samples.map((d, i) => ({sample: i, irr: d})),
+              Plot.binX(
+                { y: "count", filter: null },
+                {
+                  x: 'irr',
+                  stroke: "black",
+                  opacity: 0.3,
+                  strokeWidth: 1,
+                  thresholds: 10,
+                  curve: "natural"
+                }
+              )
+            ),
+            Plot.ruleX([mean(patirr_samples)], {stroke: "black", strokeDasharray: "2,2"}),
             Plot.ruleY([0], {opacity: 0.5}),
+            // Plot.text([1, 1], {text: "Mean: " + mean(atirr_samples).toFixed(2) + "%", textAnchor: "start", dx: 10})
+            // Plot.text(['Mean'], {x: Math.min(...atirr_samples) - 1, y: 1, textAnchor: "start", dx: 10})
           ]
         })
         const atirrResults = document.getElementById('results-atirr')
         if (atirrResults) {
           atirrResults.innerHTML = ''
           atirrResults.appendChild(atirrPlot)
+          atirrResults.innerHTML += `<h2 style="position: absolute; top: 0; left: 10px; font-size: 36px;">${mean(patirr_samples).toFixed(2)}%</h2>`
         }
 
 
@@ -4196,7 +4734,6 @@ export default {
         // Property
         'property': 'p',
         'name': 'n',
-        'holdingPeriod': 'hp',
         'debt': 'dt',
         'amount': 'a',
         'term': 't',
@@ -4211,7 +4748,7 @@ export default {
         'depreciation': 'dp',
         'period': 'pd',
         'marginal_tax_rate': 'mtr',
-        'capital_gains_tax_tate': 'cgr',
+        'capital_gains_tax_rate': 'cgr',
         'recapture_tax_rate': 'rtr',
         
         // Income & Expenses
@@ -4282,7 +4819,6 @@ export default {
         // Property
         'p': 'property',
         'n': 'name',
-        'hp': 'holdingPeriod',
         'dt': 'debt',
         'a': 'amount',
         't': 'term',
@@ -4297,7 +4833,7 @@ export default {
         'dp': 'depreciation',
         'pd': 'period',
         'mtr': 'marginal_tax_rate',
-        'cgr': 'capital_gains_tax_tate',
+        'cgr': 'capital_gains_tax_rate',
         'rtr': 'recapture_tax_rate',
         
         // Income & Expenses
@@ -4393,7 +4929,25 @@ export default {
         clonedItem.id = newId
         this.project[listName].items.push(clonedItem)
       }
-    }
+    },
+
+    on_change_inflation() {
+      this.project.model.inflation.active = true
+      this.project.model.inflation.type = 'Fixed'
+      this.run()
+    },
+
+    on_change_discount_rate() {
+      this.project.model.discount_rate.active = true
+      this.project.model.discount_rate.type = 'Fixed'
+      this.run()
+    },
+
+    on_change_economic_growth() {
+      this.project.model.economic_growth.active = true
+      this.project.model.economic_growth.type = 'Fixed'
+      this.run()
+    },
   }, // *run()
   beforeMount() {
     this.load_project()
@@ -4412,6 +4966,17 @@ export default {
       handler() {
         if (this.project.autorun) {
           this.run(true)
+        }
+        this.project_code = JSON.stringify(this.project, null, 2)
+      }
+    },
+    // project_code is string. when changed - parse and update the project
+    project_code: {
+      handler(new_code) {
+        try {
+          this.project = JSON.parse(new_code)
+        } catch (error) {
+          console.error('Failed to parse project code:', error)
         }
       }
     }
